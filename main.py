@@ -1,8 +1,6 @@
-from fastapi import FastAPI
+def main():
+    print("Hello from voting-website!")
 
-app = FastAPI()
 
-
-@app.get("/")
-def root():
-    return {"message": "Voting API running"}
+if __name__ == "__main__":
+    main()
