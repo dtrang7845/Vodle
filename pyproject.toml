@@ -11,4 +11,5 @@ dependencies = [
     "pwdlib>=0.3.0",
     "ruff>=0.15.2",
     "sqlmodel>=0.0.37",
+    "uvicorn[standard]>=0.41.0",
 ]

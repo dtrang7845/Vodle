@@ -938,6 +938,7 @@ dependencies = [
     { name = "pwdlib" },
     { name = "ruff" },
     { name = "sqlmodel" },
+    { name = "uvicorn", extra = ["standard"] },
 ]
 
 [package.metadata]
@@ -948,6 +949,7 @@ requires-dist = [
     { name = "pwdlib", specifier = ">=0.3.0" },
     { name = "ruff", specifier = ">=0.15.2" },
     { name = "sqlmodel", specifier = ">=0.0.37" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.41.0" },
 ]
 
 [[package]]
