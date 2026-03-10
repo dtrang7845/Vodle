@@ -22,6 +22,8 @@ class User(UserBase):
     """Schema for user response."""
 
     id: int
+    name: str
+    email: str
     model_config = {"from_attributes": True}
 
 
