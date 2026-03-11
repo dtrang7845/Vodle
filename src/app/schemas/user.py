@@ -4,13 +4,23 @@ This module defines Pydantic schemas for user data validation and serialization.
 """
 
 from pydantic import BaseModel, EmailStr
+from datetime import datetime
 
+
+# -----------------------------
+# Base
+# -----------------------------
 
 class UserBase(BaseModel):
-    """Base user schema."""
+    """Shared user fields."""
 
     email: EmailStr
+    name: str
 
+
+# -----------------------------
+# Create
+# -----------------------------
 
 class UserCreate(UserBase):
     """Schema for creating a new user."""
@@ -18,14 +28,22 @@ class UserCreate(UserBase):
     password: str
 
 
+# -----------------------------
+# Response (what API returns)
+# -----------------------------
+
 class User(UserBase):
     """Schema for user response."""
 
     id: int
-    name: str
-    email: str
+    create_time: datetime
+
     model_config = {"from_attributes": True}
 
+
+# -----------------------------
+# Auth Token
+# -----------------------------
 
 class Token(BaseModel):
     """Schema for authentication token response."""
