@@ -1,20 +1,16 @@
-import enum
-from sqlmodel import Column,Integer,String, Enum
-from sqlmodel.orm import relationship
-from app.core.database import Base
+from datetime import datetime
+from typing import Optional, List, TYPE_CHECKING
+from sqlmodel import SQLModel, Field, Relationship
 
-class QuestionType(str,enum.Enum):
-    MULTIPLE_CHOICE = "multiple_choice"
-    MULTIPLE_SELECT = "multiple_select"
-    TRUE_FALSE = "true_false"
+if TYPE_CHECKING:
+    from app.models.option import Option
+    from app.models.vote import Vote
 
-class Question(Base):
-    __tablename__ = "questions"
-    id = Column(Integer,primary_key = True)
-    date_id = Column(Integer,nullable = False,index = True, unique = True)
-    question_content = Column(String,nullable = False)
-    question_type = Column(Enum(QuestionType),nullable = False)
+class Question(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    description: Optional[str] = None
+    create_time: datetime = Field(default_factory=datetime.utcnow)
 
-    options = relationship("Option",back_populates = "question")
-    votes = relationship("Vote", back_populates ="question")
-   
+    options: List["Option"] = Relationship(back_populates="question")
+    votes: List["Vote"] = Relationship(back_populates="question")

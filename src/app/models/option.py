@@ -1,13 +1,19 @@
-from sqlmodel import Column,Integer,String,ForeignKey
+from datetime import datetime
+from typing import Optional, TYPE_CHECKING
+from sqlmodel import SQLModel, Field, Relationship
 
-from sqlmodel.orm import relationship
-from app.core.database import Base
+if TYPE_CHECKING:
+    from app.models.question import Question
+    from app.models.vote import Vote
 
-class Option(Base):
-    __tablename__ = "options"
-    id = Column(Integer,primary_key = True)
-    question_id = Column(Integer, ForeignKey("questions.id"))
-    option_text = Column(String,nullable = False)
 
-    question = relationship("Question",back_populates = "options")
-    votes = relationship("Vote",back_populates = "option")
+class Option(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    text: str
+
+    question_id: int = Field(foreign_key="question.id")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # relationships
+    question: "Question" = Relationship(back_populates="options")
+    votes: list["Vote"] = Relationship(back_populates="option")

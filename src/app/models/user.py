@@ -1,15 +1,15 @@
-from sqlmodel import Column,Integer,String,DateTime
 from datetime import datetime
-from sqlmodel.orm import relationship
-from app.core.database import Base
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional, List, TYPE_CHECKING
 
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer,primary_key = True,index = True)
-    name = Column(String, nullable = False)
-    username  = Column(String, nullable = False, unique = True, index = True)
-    email = Column(String, nullable = False, unique = True)
-    password_hash = Column(String, nullable = False)
-    create_time = Column(DateTime, datetime.utcnow)
+if TYPE_CHECKING:
+    from app.models.vote import Vote
 
-    votes = relationship("Vote", back_populates="user")
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str
+    email: str
+    password_hash: str
+    create_time: datetime = Field(default_factory=datetime.utcnow)
+
+    votes: List["Vote"] = Relationship(back_populates="user")

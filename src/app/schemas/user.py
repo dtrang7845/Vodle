@@ -1,52 +1,27 @@
-"""User schemas.
-
-This module defines Pydantic schemas for user data validation and serialization.
-"""
-
-from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 
 # -----------------------------
 # Base
 # -----------------------------
-
 class UserBase(BaseModel):
-    """Shared user fields."""
-
+    username: str
     email: EmailStr
-    name: str
 
 
 # -----------------------------
-# Create
+# Create (input)
 # -----------------------------
-
 class UserCreate(UserBase):
-    """Schema for creating a new user."""
-
     password: str
 
 
 # -----------------------------
-# Response (what API returns)
+# Response (output)
 # -----------------------------
-
-class User(UserBase):
-    """Schema for user response."""
-
+class UserOut(UserBase):
     id: int
     create_time: datetime
 
-    model_config = {"from_attributes": True}
-
-
-# -----------------------------
-# Auth Token
-# -----------------------------
-
-class Token(BaseModel):
-    """Schema for authentication token response."""
-
-    access_token: str
-    token_type: str
+    model_config = ConfigDict(from_attributes=True)
