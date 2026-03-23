@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 import jwt
 from fastapi.security import OAuth2PasswordBearer
-from jwt import PyJWTError
+from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from app.core.settings import settings
 
@@ -75,7 +75,7 @@ def verify_token(token: str) -> dict | None:
             settings.secret_key,
             algorithms=[settings.algorithm],
         )
-    except PyJWTError:
+    except InvalidTokenError:
         return None
     else:
         return payload

@@ -1,65 +1,48 @@
 from typing import TYPE_CHECKING
+from sqlmodel import select
 
 from app.models.user import User
 
 if TYPE_CHECKING:
-    from sqlmodel.orm import Session
-
-    from app.schemas.user import UserDb
+    from sqlmodel import Session
 
 
 class UserRepository:
-    @staticmethod
-    def get_by_mail(db: Session, email: str) -> User | None:
-
-        # select * from user where email = email limit 1
-        return db.query(User).filter(User.email == email).first()
 
     @staticmethod
-    def get_by_id(db: Session, user_id: int) -> User | None:
-
-        # select * from user where id = user_id limit 1
-        return db.query(User).filter(User.id == user_id).first()
+    def get_all(db: "Session") -> list[User]:
+        statement = select(User)
+        return db.exec(statement).all()
 
     @staticmethod
-    def create(
-        db: Session,
-        user_db: UserDb,
-    ) -> User:
+    def get_by_email(db: "Session", email: str) -> User | None:
+        statement = select(User).where(User.email == email)
+        return db.exec(statement).first()
 
-        db_user = User(
-            email=user_db.email,
-            hashed_password=user_db.hashed_password,
-        )
+    @staticmethod
+    def get_by_username(db: "Session", username: str) -> User | None:
+        statement = select(User).where(User.username == username)
+        return db.exec(statement).first()
+
+    @staticmethod
+    def get_by_id(db: "Session", user_id: int) -> User | None:
+        statement = select(User).where(User.id == user_id)
+        return db.exec(statement).first()
+
+    @staticmethod
+    def create(db: "Session", db_user: User) -> User:
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
         return db_user
 
     @staticmethod
-    def update(db: Session, db_user: User) -> User:
-        """
-        Update user.
-
-        Args:
-            db: Database session
-            db_user: User instance to update
-
-        Returns:
-            User: Updated user
-        """
+    def update(db: "Session", db_user: User) -> User:
         db.commit()
         db.refresh(db_user)
         return db_user
 
     @staticmethod
-    def delete(db: Session, db_user: User) -> None:
-        """
-        Delete user.
-
-        Args:
-            db: Database session
-            db_user: User instance to delete
-        """
+    def delete(db: "Session", db_user: User) -> None:
         db.delete(db_user)
         db.commit()

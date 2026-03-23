@@ -17,7 +17,6 @@ class Vote(SQLModel, table=True):
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    # relationships
     user: "User" = Relationship(back_populates="votes")
     question: "Question" = Relationship(back_populates="votes")
     option: "Option" = Relationship(back_populates="votes")
