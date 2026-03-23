@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -15,7 +15,7 @@ class Vote(SQLModel, table=True):
     question_id: int = Field(foreign_key="question.id")
     option_id: int = Field(foreign_key="option.id")
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     user: "User" = Relationship(back_populates="votes")
     question: "Question" = Relationship(back_populates="votes")
