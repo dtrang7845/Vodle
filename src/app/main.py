@@ -5,6 +5,7 @@ from sqlmodel import SQLModel
 from app.api.v1.routes import api_router
 from app.core.database import engine
 
+# import all models cause they all work now
 from app.models.user import User
 from app.models.question import Question
 from app.models.option import Option
