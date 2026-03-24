@@ -35,8 +35,8 @@ class VoteService:
             )
         return self.repository.get_by_question_id(db, question_id)
 
-    def create(self, db: "Session", vote: VoteCreate) -> Vote:
-        db_user = self.user_repository.get_by_id(db, vote.user_id)
+    def create(self, db: "Session", vote: VoteCreate, user_id: int) -> Vote:
+        db_user = self.user_repository.get_by_id(db, user_id)
         if not db_user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -64,7 +64,7 @@ class VoteService:
             )
 
         existing_vote = self.repository.get_existing_vote(
-            db, vote.user_id, vote.question_id
+            db, user_id, vote.question_id
         )
         if existing_vote:
             raise HTTPException(
@@ -72,7 +72,11 @@ class VoteService:
                 detail="User has already voted on this question",
             )
 
-        db_vote = Vote(**vote.model_dump())
+        db_vote = Vote(
+            user_id=user_id,
+            question_id=vote.question_id,
+            option_id=vote.option_id,
+        )
         return self.repository.create(db, db_vote)
 
     def delete(self, db: "Session", vote_id: int) -> None:

@@ -27,7 +27,6 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-
 @api_router.post("/", response_model=UserOut, status_code=201)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return user_service.create(db, user)

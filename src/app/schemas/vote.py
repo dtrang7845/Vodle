@@ -3,7 +3,6 @@ from pydantic import BaseModel, ConfigDict
 
 
 class VoteCreate(BaseModel):
-    user_id: int
     question_id: int
     option_id: int
 

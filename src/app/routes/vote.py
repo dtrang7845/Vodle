@@ -2,8 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
 from app.core.database import get_db
+from app.models.user import User
 from app.schemas.vote import VoteCreate, VoteOut
 from app.services.vote import vote_service
+from app.core.authentication import get_current_user
+
 
 api_router = APIRouter(prefix="/vote", tags=["votes"])
 
@@ -27,5 +30,5 @@ def get_votes_by_question(question_id: int, db: Session = Depends(get_db)):
 
 
 @api_router.post("/", response_model=VoteOut, status_code=201)
-def create_vote(vote: VoteCreate, db: Session = Depends(get_db)):
-    return vote_service.create(db, vote)
+def create_vote(vote: VoteCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return vote_service.create(db, vote, current_user.id)
