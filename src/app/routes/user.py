@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
 from app.core.database import get_db
@@ -32,16 +33,19 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return user_service.create(db, user)
 
 @api_router.post("/login", response_model=Token)
-def login(user: UserLogin, db: Session = Depends(get_db)):
-    db_user = user_service.authenticate(db, user.email, user.password)
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+):
+    db_user = user_service.authenticate(db, form_data.username, form_data.password)
 
     if not db_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
+            detail="Invalid email or password",
         )
 
-    access_token = create_access_token(data={"sub": str(user.id)})
+    access_token = create_access_token(data={"sub": str(db_user.id)})
 
     return Token(access_token=access_token, token_type="bearer")
 
