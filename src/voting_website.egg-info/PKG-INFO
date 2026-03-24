@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: voting-website
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.14
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: fastapi[standard]>=0.133.0
+Requires-Dist: jwt>=1.4.0
+Requires-Dist: pre-commit>=4.5.1
+Requires-Dist: pwdlib>=0.3.0
+Requires-Dist: ruff>=0.15.2
+Requires-Dist: sqlmodel>=0.0.37
+Dynamic: license-file

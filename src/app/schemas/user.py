@@ -25,3 +25,7 @@ class UserOut(UserBase):
     create_time: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
