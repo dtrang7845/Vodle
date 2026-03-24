@@ -53,7 +53,7 @@ class QuestionService:
             title=db_question.title,
             description=db_question.description,
             question_text=db_question.question_text,
-            create_time=db_question.create_time,
+            created_at=db_question.create_time,
             results=results,
         )
 

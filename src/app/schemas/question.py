@@ -17,10 +17,6 @@ class QuestionOut(QuestionBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-    question_text: str
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
     
 class QuestionResultItem(BaseModel):
     option_id: int
@@ -33,7 +29,7 @@ class QuestionWithResults(BaseModel):
     title: str
     description: str | None = None
     question_text: str
-    create_time: datetime   
+    created_at: datetime   
     results: list[QuestionResultItem]
     
     model_config = ConfigDict(from_attributes=True)
