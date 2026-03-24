@@ -8,11 +8,32 @@ class QuestionBase(BaseModel):
 
 
 class QuestionCreate(QuestionBase):
-    pass
+    question_text: str
 
 
 class QuestionOut(QuestionBase):
     id: int
-    create_time: datetime
+    question_text: str
+    created_at: datetime
 
+    model_config = ConfigDict(from_attributes=True)
+    question_text: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+    
+class QuestionResultItem(BaseModel):
+    option_id: int
+    option_text: str
+    votes: int
+    
+    
+class QuestionWithResults(BaseModel):
+    id: int
+    title: str
+    description: str | None = None
+    question_text: str
+    create_time: datetime   
+    results: list[QuestionResultItem]
+    
     model_config = ConfigDict(from_attributes=True)

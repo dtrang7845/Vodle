@@ -10,6 +10,6 @@ class User(SQLModel, table=True):
     username: str
     email: str
     password_hash: str
-    create_time: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
     votes: List["Vote"] = Relationship(back_populates="user")

@@ -22,7 +22,7 @@ class UserCreate(UserBase):
 # -----------------------------
 class UserOut(UserBase):
     id: int
-    create_time: datetime
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 

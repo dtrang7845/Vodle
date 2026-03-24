@@ -10,7 +10,7 @@ class Question(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str
     description: Optional[str] = None
-    create_time: datetime = Field(default_factory=datetime.utcnow)
-
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    question_text: str
     options: List["Option"] = Relationship(back_populates="question")
     votes: List["Vote"] = Relationship(back_populates="question")

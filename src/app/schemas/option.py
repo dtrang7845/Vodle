@@ -3,11 +3,12 @@ from pydantic import BaseModel, ConfigDict
 
 
 class OptionBase(BaseModel):
-    text: str
+    option_text: str
 
 
 class OptionCreate(OptionBase):
     question_id: int
+    option_text: str
 
 
 class OptionOut(OptionBase):

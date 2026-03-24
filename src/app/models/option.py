@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, List
 from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
@@ -16,4 +16,4 @@ class Option(SQLModel, table=True):
 
     # relationships
     question: "Question" = Relationship(back_populates="options")
-    votes: list["Vote"] = Relationship(back_populates="option")
+    votes: List["Vote"] = Relationship(back_populates="option")

@@ -4,7 +4,9 @@ from fastapi import HTTPException, status
 
 from app.models.question import Question
 from app.repository.question import QuestionRepository
-from app.schemas.question import QuestionCreate
+from app.repository.option import OptionRepository
+from app.repository.vote import VoteRepository
+from app.schemas.question import QuestionCreate, QuestionResultItem, QuestionWithResults
 
 if TYPE_CHECKING:
     from sqlmodel import Session
@@ -13,12 +15,47 @@ if TYPE_CHECKING:
 class QuestionService:
     def __init__(self) -> None:
         self.repository = QuestionRepository()
+        self.option_repository = OptionRepository()
+        self.vote_repository = VoteRepository()
 
     def get_all(self, db: "Session") -> list[Question]:
         return self.repository.get_all(db)
 
     def get_by_id(self, db: "Session", question_id: int) -> Question | None:
         return self.repository.get_by_id(db, question_id)
+    
+    def get_with_results(self, db: "Session", question_id: int) -> QuestionWithResults:
+        db_question = self.repository.get_by_id(db, question_id)
+        if not db_question:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Question not found",
+            )
+
+        options = self.option_repository.get_by_question_id(db, question_id)
+        votes = self.vote_repository.get_by_question_id(db, question_id)
+
+        vote_counts: dict[int, int] = {}
+        for vote in votes:
+            vote_counts[vote.option_id] = vote_counts.get(vote.option_id, 0) + 1
+        
+        results = [
+            QuestionResultItem(
+                option_id=option.id,
+                option_text=option.option_text,
+                votes=vote_counts.get(option.id, 0),
+            )
+            for option in options
+        ]
+
+        return QuestionWithResults(
+            id=db_question.id,
+            title=db_question.title,
+            description=db_question.description,
+            question_text=db_question.question_text,
+            create_time=db_question.create_time,
+            results=results,
+        )
 
     def create(self, db: "Session", question: QuestionCreate) -> Question:
         db_question = Question(**question.model_dump())
