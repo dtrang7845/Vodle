@@ -33,6 +33,7 @@ class OptionRepository:
 
     @staticmethod
     def update(db: "Session", db_option: Option) -> Option:
+        db.add(db_option)
         db.commit()
         db.refresh(db_option)
         return db_option

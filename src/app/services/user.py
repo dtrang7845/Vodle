@@ -41,26 +41,23 @@ class UserService:
                 detail="Email already registered",
             )
 
-        existing_username = self.is_username_exists(db, user.username)
-        if existing_username:
+        if self.is_username_exists(db, user.username):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Username already taken",
             )
 
-        hashed_password = get_password_hash(user.password)
-
         db_user = User(
             username=user.username,
             email=user.email,
-            password_hash=hashed_password,
+            password_hash=get_password_hash(user.password),
         )
 
         return self.repository.create(db, db_user)
 
     def authenticate(self, db: "Session", email: str, password: str) -> User | None:
         user = self.repository.get_by_email(db, email)
-        if not user:
+        if user is None:
             return None
 
         if not verify_password(password, str(user.password_hash)):

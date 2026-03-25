@@ -18,6 +18,7 @@ class QuestionRepository:
     def get_by_id(db: "Session", question_id: int) -> Question | None:
         statement = select(Question).where(Question.id == question_id)
         return db.exec(statement).first()
+    
 
     @staticmethod
     def create(db: "Session", db_question: Question) -> Question:
@@ -28,6 +29,7 @@ class QuestionRepository:
 
     @staticmethod
     def update(db: "Session", db_question: Question) -> Question:
+        db.add(db_question)
         db.commit()
         db.refresh(db_question)
         return db_question

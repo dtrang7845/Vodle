@@ -43,6 +43,7 @@ class VoteRepository:
 
     @staticmethod
     def update(db: "Session", db_vote: Vote) -> Vote:
+        db.add(db_vote)
         db.commit()
         db.refresh(db_vote)
         return db_vote

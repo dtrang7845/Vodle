@@ -5,13 +5,17 @@ from sqlmodel import SQLModel
 from app.api.v1.routes import api_router
 from app.core.database import engine
 
-# import all models cause they all work now
-from app.models.user import User
-from app.models.question import Question
-from app.models.option import Option
-from app.models.vote import Vote
+from app.core.settings import settings
 
-app = FastAPI()
+# import all models cause they all work now
+
+def create_db_and_tables() -> None:
+    SQLModel.metadata.create_all(engine)
+
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,6 +25,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SQLModel.metadata.create_all(engine)
+@app.on_event("startup")
+def on_startup() -> None:
+    create_db_and_tables()
+# SQLModel.metadata.create_all(engine)
 
 app.include_router(api_router)

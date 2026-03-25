@@ -36,25 +36,18 @@ class VoteService:
         return self.repository.get_by_question_id(db, question_id)
 
     def create(self, db: "Session", vote: VoteCreate, user_id: int) -> Vote:
-        db_user = self.user_repository.get_by_id(db, user_id)
-        if not db_user:
+        db_question = self.question_repository.get_by_id(db, vote.question_id)
+        if db_question is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found",
             )
 
-        db_question = self.question_repository.get_by_id(db, vote.question_id)
-        if not db_question:
+        db_option = self.option_repository.get_by_id(db, vote.question_id)
+        if db_option is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Question not found",
-            )
-
-        db_option = self.option_repository.get_by_id(db, vote.option_id)
-        if not db_option:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Option not found",
             )
 
         if db_option.question_id != vote.question_id:
@@ -66,7 +59,7 @@ class VoteService:
         existing_vote = self.repository.get_existing_vote(
             db, user_id, vote.question_id
         )
-        if existing_vote:
+        if existing_vote is not None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="User has already voted on this question",
@@ -81,7 +74,7 @@ class VoteService:
 
     def delete(self, db: "Session", vote_id: int) -> None:
         db_vote = self.repository.get_by_id(db, vote_id)
-        if not db_vote:
+        if db_vote is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Vote not found",

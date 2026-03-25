@@ -8,8 +8,7 @@ class OptionBase(BaseModel):
 
 class OptionCreate(OptionBase):
     question_id: int
-    option_text: str
-
+    
 
 class OptionOut(OptionBase):
     id: int

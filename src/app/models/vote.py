@@ -11,9 +11,9 @@ if TYPE_CHECKING:
 class Vote(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
-    user_id: int = Field(foreign_key="user.id")
-    question_id: int = Field(foreign_key="question.id")
-    option_id: int = Field(foreign_key="option.id")
+    user_id: int = Field(foreign_key="user.id", index=True)
+    question_id: int = Field(foreign_key="question.id", index=True)
+    option_id: int = Field(foreign_key="option.id", index=True)
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 

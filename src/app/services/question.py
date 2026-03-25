@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Counter
 
 from fastapi import HTTPException, status
 
@@ -35,9 +35,7 @@ class QuestionService:
         options = self.option_repository.get_by_question_id(db, question_id)
         votes = self.vote_repository.get_by_question_id(db, question_id)
 
-        vote_counts: dict[int, int] = {}
-        for vote in votes:
-            vote_counts[vote.option_id] = vote_counts.get(vote.option_id, 0) + 1
+        vote_counts = Counter(vote.option_id for vote in votes)
         
         results = [
             QuestionResultItem(
@@ -46,6 +44,7 @@ class QuestionService:
                 votes=vote_counts.get(option.id, 0),
             )
             for option in options
+            if option.id is not None
         ]
 
         return QuestionWithResults(
@@ -53,7 +52,7 @@ class QuestionService:
             title=db_question.title,
             description=db_question.description,
             question_text=db_question.question_text,
-            created_at=db_question.create_time,
+            created_at=db_question.created_at,
             results=results,
         )
 

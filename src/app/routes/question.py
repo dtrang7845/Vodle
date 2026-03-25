@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
 from app.core.database import get_db
@@ -15,10 +15,7 @@ def get_questions(db: Session = Depends(get_db)):
 
 @api_router.get("/{question_id}", response_model=QuestionOut)
 def get_question(question_id: int, db: Session = Depends(get_db)):
-    question = question_service.get_by_id(db, question_id)
-    if not question:
-        raise HTTPException(status_code=404, detail="Question not found")
-    return question
+    return question_service.get_by_id(db, question_id)
 
 @api_router.get("/{question_id}/results", response_model=QuestionWithResults)
 def get_question_with_results(question_id: int, db: Session = Depends(get_db)):

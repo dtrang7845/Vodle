@@ -38,6 +38,7 @@ class UserRepository:
 
     @staticmethod
     def update(db: "Session", db_user: User) -> User:
+        db.add(db_user)
         db.commit()
         db.refresh(db_user)
         return db_user

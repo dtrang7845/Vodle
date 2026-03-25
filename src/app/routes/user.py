@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
 from app.core.database import get_db
-from app.schemas.user import UserCreate, UserOut, UserLogin
+from app.schemas.user import UserCreate, UserOut
 from app.schemas.token import Token
 from app.services.user import user_service
 from app.core.authentication import create_access_token, get_current_user
@@ -23,8 +23,11 @@ def get_me(current_user: User = Depends(get_current_user)):
 @api_router.get("/{user_id}", response_model=UserOut)
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user = user_service.get_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
     return user
 
 @api_router.post("/", response_model=UserOut, status_code=201)
