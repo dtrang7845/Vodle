@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, Counter
 
-from fastapi import HTTPException, status
-
 from app.models.question import Question
 from app.repository.question import QuestionRepository
 from app.repository.option import OptionRepository
 from app.repository.vote import VoteRepository
 from app.schemas.question import QuestionCreate, QuestionResultItem, QuestionWithResults
+
+from app.exceptions.notfound_excs import question_not_found_exception
 
 if TYPE_CHECKING:
     from sqlmodel import Session
@@ -27,10 +27,7 @@ class QuestionService:
     def get_with_results(self, db: "Session", question_id: int) -> QuestionWithResults:
         db_question = self.repository.get_by_id(db, question_id)
         if not db_question:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Question not found",
-            )
+            raise question_not_found_exception
 
         options = self.option_repository.get_by_question_id(db, question_id)
         votes = self.vote_repository.get_by_question_id(db, question_id)
@@ -63,10 +60,7 @@ class QuestionService:
     def delete(self, db: "Session", question_id: int) -> None:
         db_question = self.repository.get_by_id(db, question_id)
         if not db_question:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Question not found",
-            )
+            raise question_not_found_exception
         self.repository.delete(db, db_question)
 
 

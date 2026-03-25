@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
 from app.core.database import get_db
 from app.schemas.question import QuestionCreate, QuestionOut, QuestionWithResults
 from app.services.question import question_service
+
+from app.exceptions.notfound_excs import question_not_found_exception
 
 api_router = APIRouter(prefix="/question", tags=["questions"])
 
@@ -18,10 +20,8 @@ def get_question(question_id: int, db: Session = Depends(get_db)):
     question = question_service.get_by_id(db, question_id)
 
     if question is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Question not found",
-        )
+        raise question_not_found_exception
+    return question
 
 
 @api_router.get("/{question_id}/results", response_model=QuestionWithResults)

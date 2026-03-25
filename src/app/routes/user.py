@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
@@ -8,6 +8,9 @@ from app.schemas.token import Token
 from app.services.user import user_service
 from app.core.authentication import create_access_token, get_current_user
 from app.models.user import User
+
+from app.exceptions.notfound_excs import user_not_found_exception
+from app.exceptions.login_excs import invalid_credentials_exception
 
 api_router = APIRouter(prefix="/user", tags=["users"])
 
@@ -26,10 +29,7 @@ def get_me(current_user: User = Depends(get_current_user)):
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user = user_service.get_by_id(db, user_id)
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
+        raise user_not_found_exception
     return user
 
 
@@ -46,10 +46,7 @@ def login(
     db_user = user_service.authenticate(db, form_data.username, form_data.password)
 
     if not db_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
-        )
+        raise invalid_credentials_exception
 
     access_token = create_access_token(data={"sub": str(db_user.id)})
 

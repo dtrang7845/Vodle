@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING
 
-from fastapi import HTTPException, status
-
 from app.core.authentication import get_password_hash, verify_password
 from app.models.user import User
 from app.repository.user import UserRepository
 from app.schemas.user import UserCreate
+
+from app.exceptions.login_excs import username_already_exists_exception, email_already_exists_exception
 
 if TYPE_CHECKING:
     from sqlmodel import Session
@@ -36,16 +36,10 @@ class UserService:
     def create(self, db: "Session", user: UserCreate) -> User:
         existing_email = self.is_email_exists(db, user.email)
         if existing_email:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Email already registered",
-            )
+            raise email_already_exists_exception
 
         if self.is_username_exists(db, user.username):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Username already taken",
-            )
+            raise username_already_exists_exception
 
         db_user = User(
             username=user.username,

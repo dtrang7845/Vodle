@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING
 
-from fastapi import HTTPException, status
-
 from app.models.option import Option
 from app.repository.option import OptionRepository
 from app.repository.question import QuestionRepository
 from app.schemas.option import OptionCreate
+
+from app.exceptions.notfound_excs import question_not_found_exception, option_not_found_exception
 
 if TYPE_CHECKING:
     from sqlmodel import Session
@@ -25,19 +25,13 @@ class OptionService:
     def get_by_question_id(self, db: "Session", question_id: int) -> list[Option]:
         db_question = self.question_repository.get_by_id(db, question_id)
         if not db_question:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Question not found",
-            )
+            raise question_not_found_exception
         return self.repository.get_by_question_id(db, question_id)
 
     def create(self, db: "Session", option: OptionCreate) -> Option:
         db_question = self.question_repository.get_by_id(db, option.question_id)
         if not db_question:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Question not found",
-            )
+            raise question_not_found_exception
 
         db_option = Option(**option.model_dump())
         return self.repository.create(db, db_option)
@@ -45,10 +39,7 @@ class OptionService:
     def delete(self, db: "Session", option_id: int) -> None:
         db_option = self.repository.get_by_id(db, option_id)
         if not db_option:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Option not found",
-            )
+            raise option_not_found_exception
         self.repository.delete(db, db_option)
 
 
