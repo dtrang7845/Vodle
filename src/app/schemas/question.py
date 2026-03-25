@@ -17,19 +17,20 @@ class QuestionOut(QuestionBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-    
+
+
 class QuestionResultItem(BaseModel):
     option_id: int
     option_text: str
     votes: int
-    
-    
+
+
 class QuestionWithResults(BaseModel):
     id: int
     title: str
     description: str | None = None
     question_text: str
-    created_at: datetime   
+    created_at: datetime
     results: list[QuestionResultItem]
-    
+
     model_config = ConfigDict(from_attributes=True)

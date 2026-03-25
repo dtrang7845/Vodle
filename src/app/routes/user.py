@@ -16,9 +16,11 @@ api_router = APIRouter(prefix="/user", tags=["users"])
 def get_users(db: Session = Depends(get_db)):
     return user_service.get_all(db)
 
+
 @api_router.get("/me", response_model=UserOut)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
 
 @api_router.get("/{user_id}", response_model=UserOut)
 def get_user(user_id: int, db: Session = Depends(get_db)):
@@ -30,9 +32,11 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         )
     return user
 
+
 @api_router.post("/", response_model=UserOut, status_code=201)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return user_service.create(db, user)
+
 
 @api_router.post("/login", response_model=Token)
 def login(
@@ -50,4 +54,3 @@ def login(
     access_token = create_access_token(data={"sub": str(db_user.id)})
 
     return Token(access_token=access_token, token_type="bearer")
-

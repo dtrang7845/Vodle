@@ -9,6 +9,14 @@ dependencies = [
     "jwt>=1.4.0",
     "pre-commit>=4.5.1",
     "pwdlib>=0.3.0",
+    "pytest>=9.0.2",
     "ruff>=0.15.2",
     "sqlmodel>=0.0.37",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.1",
+    "pytest>=9.0.2",
+    "ruff>=0.15.2",
 ]

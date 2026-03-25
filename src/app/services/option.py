@@ -24,7 +24,7 @@ class OptionService:
 
     def get_by_question_id(self, db: "Session", question_id: int) -> list[Option]:
         db_question = self.question_repository.get_by_id(db, question_id)
-        if not db_question: 
+        if not db_question:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Question not found",

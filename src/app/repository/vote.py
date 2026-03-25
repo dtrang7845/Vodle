@@ -8,7 +8,6 @@ if TYPE_CHECKING:
 
 
 class VoteRepository:
-
     @staticmethod
     def get_all(db: "Session") -> list[Vote]:
         statement = select(Vote)
@@ -25,9 +24,7 @@ class VoteRepository:
         return db.exec(statement).all()
 
     @staticmethod
-    def get_existing_vote(
-        db: "Session", user_id: int, question_id: int
-    ) -> Vote | None:
+    def get_existing_vote(db: "Session", user_id: int, question_id: int) -> Vote | None:
         statement = select(Vote).where(
             Vote.user_id == user_id,
             Vote.question_id == question_id,

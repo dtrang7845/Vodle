@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
 from app.core.database import get_db
@@ -23,9 +23,19 @@ def get_votes_by_question(question_id: int, db: Session = Depends(get_db)):
 
 @api_router.get("/{vote_id}", response_model=VoteOut)
 def get_vote(vote_id: int, db: Session = Depends(get_db)):
-    return vote_service.get_by_id(db, vote_id)
+    vote = vote_service.get_by_id(db, vote_id)
+
+    if vote is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Vote not found",
+        )
 
 
 @api_router.post("/", response_model=VoteOut, status_code=201)
-def create_vote(vote: VoteCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_vote(
+    vote: VoteCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     return vote_service.create(db, vote, current_user.id)

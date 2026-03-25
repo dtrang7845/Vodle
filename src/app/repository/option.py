@@ -8,7 +8,6 @@ if TYPE_CHECKING:
 
 
 class OptionRepository:
-
     @staticmethod
     def get_all(db: "Session") -> list[Option]:
         statement = select(Option)

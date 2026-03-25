@@ -23,7 +23,7 @@ class QuestionService:
 
     def get_by_id(self, db: "Session", question_id: int) -> Question | None:
         return self.repository.get_by_id(db, question_id)
-    
+
     def get_with_results(self, db: "Session", question_id: int) -> QuestionWithResults:
         db_question = self.repository.get_by_id(db, question_id)
         if not db_question:
@@ -36,7 +36,7 @@ class QuestionService:
         votes = self.vote_repository.get_by_question_id(db, question_id)
 
         vote_counts = Counter(vote.option_id for vote in votes)
-        
+
         results = [
             QuestionResultItem(
                 option_id=option.id,

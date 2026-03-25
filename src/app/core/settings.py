@@ -1,12 +1,13 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
     )
-    
+
     app_name: str = "Vodle API"
     app_version: str = "1.0.0"
 
@@ -29,5 +30,6 @@ class Settings(BaseSettings):
         default="sqlite:///./vodle.db",
         description="Database connection URL",
     )
+
 
 settings = Settings()

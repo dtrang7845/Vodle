@@ -8,7 +8,6 @@ if TYPE_CHECKING:
 
 
 class QuestionRepository:
-
     @staticmethod
     def get_all(db: "Session") -> list[Question]:
         statement = select(Question)
@@ -18,7 +17,6 @@ class QuestionRepository:
     def get_by_id(db: "Session", question_id: int) -> Question | None:
         statement = select(Question).where(Question.id == question_id)
         return db.exec(statement).first()
-    
 
     @staticmethod
     def create(db: "Session", db_question: Question) -> Question:

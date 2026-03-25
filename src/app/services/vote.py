@@ -56,9 +56,7 @@ class VoteService:
                 detail="Option does not belong to this question",
             )
 
-        existing_vote = self.repository.get_existing_vote(
-            db, user_id, vote.question_id
-        )
+        existing_vote = self.repository.get_existing_vote(db, user_id, vote.question_id)
         if existing_vote is not None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

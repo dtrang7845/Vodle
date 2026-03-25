@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 from typing import Optional, TYPE_CHECKING
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, UniqueConstraint
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -9,6 +9,10 @@ if TYPE_CHECKING:
 
 
 class Vote(SQLModel, table=True):
+    __table_args__ = (
+        UniqueConstraint("user_id", "question_id", name="unique_vote_user_question"),
+    )
+
     id: Optional[int] = Field(default=None, primary_key=True)
 
     user_id: int = Field(foreign_key="user.id", index=True)

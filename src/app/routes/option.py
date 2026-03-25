@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
 from app.core.database import get_db
@@ -20,6 +20,14 @@ def get_options_by_question(question_id: int, db: Session = Depends(get_db)):
 
 @api_router.get("/{option_id}", response_model=OptionOut)
 def get_option(option_id: int, db: Session = Depends(get_db)):
+    option = option_service.get_by_id(db, option_id)
+
+    if option is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Option not found",
+        )
+
     return option_service.get_by_id(db, option_id)
 
 
