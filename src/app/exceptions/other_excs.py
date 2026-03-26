@@ -22,5 +22,5 @@ user_vote_modify_exception = HTTPException(
 
 user_unauthorized_exception = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,
-    detail="User is authoried for this action",
+    detail="User is forbidden from this action",
 )
