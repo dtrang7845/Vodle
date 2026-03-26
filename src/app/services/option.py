@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from app.models.option import Option
 from app.repository.option import OptionRepository
 from app.repository.question import QuestionRepository
-from app.schemas.option import OptionCreate
+from app.schemas.option import OptionCreate, OptionUpdate
 
 from app.exceptions.notfound_excs import (
     question_not_found_exception,
@@ -38,6 +38,12 @@ class OptionService:
 
         db_option = Option(**option.model_dump())
         return self.repository.create(db, db_option)
+    
+    def update(self, db: "Session", option_id: int, option: OptionUpdate) -> Option:
+        db_option = self.repository.get_by_id(db, option_id)
+        if not db_option:
+            raise option_not_found_exception
+        self.repository.update(db, db_option, option)
 
     def delete(self, db: "Session", option_id: int) -> None:
         db_option = self.repository.get_by_id(db, option_id)

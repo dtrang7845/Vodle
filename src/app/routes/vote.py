@@ -39,3 +39,12 @@ def create_vote(
     current_user: User = Depends(get_current_user),
 ):
     return vote_service.create(db, vote, current_user.id)
+
+
+@api_router.delete("/{vote_id}", status_code=204)
+def delete_vote(
+    vote_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    vote_service.delete(db, vote_id, current_user.id)

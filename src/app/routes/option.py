@@ -4,7 +4,7 @@ from sqlmodel import Session
 from app.core.database import get_db
 from app.core.authentication import require_admin
 from app.models.user import User
-from app.schemas.option import OptionCreate, OptionOut
+from app.schemas.option import OptionCreate, OptionOut, OptionUpdate
 from app.services.option import option_service
 
 from app.exceptions.notfound_excs import option_not_found_exception
@@ -39,3 +39,22 @@ def create_option(
     admin_user: User = Depends(require_admin),
 ):
     return option_service.create(db, option)
+
+
+@api_router.put("/{option_id}", response_model=OptionOut)
+def update_option(
+    option_id: int,
+    option: OptionUpdate,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(require_admin),
+):
+    return option_service.update(db, option_id, option)
+
+
+@api_router.delete("/{option_id}", status_code=204)
+def delete_option(
+    option_id: int,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(require_admin),
+):
+    option_service.delete(db, option_id)

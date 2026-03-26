@@ -9,6 +9,12 @@ class QuestionBase(BaseModel):
 
 class QuestionCreate(QuestionBase):
     question_text: str
+    
+
+class QuestionUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    question_text: str | None = None
 
 
 class QuestionOut(QuestionBase):

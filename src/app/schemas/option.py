@@ -10,6 +10,10 @@ class OptionCreate(OptionBase):
     question_id: int
 
 
+class OptionUpdate(BaseModel):
+    option_text: str | None = None
+
+
 class OptionOut(OptionBase):
     id: int
     question_id: int

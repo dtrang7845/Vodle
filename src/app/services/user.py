@@ -3,11 +3,15 @@ from typing import TYPE_CHECKING
 from app.core.authentication import get_password_hash, verify_password
 from app.models.user import User
 from app.repository.user import UserRepository
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 
 from app.exceptions.login_excs import (
     username_already_exists_exception,
     email_already_exists_exception,
+)
+
+from app.exceptions.notfound_excs import (
+    user_not_found_exception,
 )
 
 if TYPE_CHECKING:
@@ -51,6 +55,12 @@ class UserService:
         )
 
         return self.repository.create(db, db_user)
+    
+    def update(self, db: "Session", user_id: int, user: UserUpdate) -> User:
+        db_user = self.repository.get_by_id(db, user_id)
+        if not db_user:
+            raise user_not_found_exception
+        return self.repository.update(db, db_user, user)
 
     def authenticate(self, db: "Session", email: str, password: str) -> User | None:
         user = self.repository.get_by_email(db, email)
@@ -61,6 +71,12 @@ class UserService:
             return None
 
         return user
+    
+    def delete(self, db: "Session", user_id: int) -> None:
+        db_user = self.repository.get_by_id(db, user_id)
+        if not db_user:
+            raise user_not_found_exception
+        self.repository.delete(db, db_user)
 
 
 user_service = UserService()

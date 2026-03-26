@@ -12,7 +12,11 @@ from app.exceptions.notfound_excs import (
     question_not_found_exception,
     option_not_found_exception,
 )
-from app.exceptions.other_excs import user_already_voted_exception, bad_option_exception
+from app.exceptions.other_excs import (
+    user_already_voted_exception, 
+    bad_option_exception,
+    user_vote_deletion_exception,
+)
 
 if TYPE_CHECKING:
     from sqlmodel import Session
@@ -60,10 +64,12 @@ class VoteService:
         )
         return self.repository.create(db, db_vote)
 
-    def delete(self, db: "Session", vote_id: int) -> None:
+    def delete(self, db: "Session", vote_id: int, current_user_id: int) -> None:
         db_vote = self.repository.get_by_id(db, vote_id)
         if db_vote is None:
             raise vote_not_found_exception
+        if db_vote.user_id != current_user_id:
+            raise user_vote_deletion_exception
         self.repository.delete(db, db_vote)
 
 

@@ -4,7 +4,7 @@ from sqlmodel import Session
 from app.core.authentication import require_admin
 from app.core.database import get_db
 from app.models.user import User
-from app.schemas.question import QuestionCreate, QuestionOut, QuestionWithResults
+from app.schemas.question import QuestionCreate, QuestionOut, QuestionWithResults, QuestionUpdate
 from app.services.question import question_service
 
 from app.exceptions.notfound_excs import question_not_found_exception
@@ -38,3 +38,22 @@ def create_question(
     admin_user: User = Depends(require_admin),
 ):
     return question_service.create(db, question)
+
+
+@api_router.put("/{question_id}", response_model=QuestionOut)
+def update_question(
+    question_id: int,
+    question: QuestionUpdate,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(require_admin),
+):
+    return question_service.update(db, question_id, question)
+
+
+@api_router.delete("/{question_id}", status_code=204)
+def delete_question(
+    question_id: int,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(require_admin),
+):
+    question_service.delete(db, question_id)
