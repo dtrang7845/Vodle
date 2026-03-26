@@ -72,11 +72,11 @@ This project is the backend for a full-stack voting web application built with:
 ```
 
 ## Setup Instructions
+Note: Ensure that you have uv installed
 1. Clone the repository
-2. Setup virtual environment
-    - uv venv
-    - source .venv/bin/activate
-3. Install dependencies
-    - uv pip install -e .
-4. Run the server
+2. To create and sync the virtual environment
+    - uv sync
+    - source .venv/bin/activate (on macOS and Linux)
+3. Run the server
     - uvicorn app.main:app --reload
+    - uv run fastapi dev src/app/main.py
