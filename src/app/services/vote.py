@@ -73,6 +73,13 @@ class VoteService:
         if db_vote.user_id != current_user_id:
             raise user_vote_modify_exception
 
+        db_option = self.option_repository.get_by_id(db, vote.option_id)
+        if db_option is None:
+            raise option_not_found_exception
+
+        if db_option.question_id != db_vote.question_id:
+            raise bad_option_exception
+
         db_vote.option_id = vote.option_id
         return self.repository.update(db, db_vote)
 

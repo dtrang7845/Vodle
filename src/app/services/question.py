@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Counter
+from typing import TYPE_CHECKING
+from collections import Counter
 
 from app.models.question import Question
 from app.repository.question import QuestionRepository

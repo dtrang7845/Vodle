@@ -15,57 +15,68 @@ This project is the backend for a full-stack voting web application built with:
 
 
 ## Project Structure
-
+```
 .
 ├── pyproject.toml
 ├── README.md
 ├── src
-│   └── app
-│       ├── __init__.py
-│       ├── main.py
-│       ├── api
-│       │   └── v1
-│       │       ├── __init__.py
-│       │       └── routes.py
-│       ├── core
-│       │   ├── __init__.py
-│       │   ├── authentication.py
-│       │   ├── database.py
-│       │   └── settings.py
-│       ├── models
-│       │   ├── __init__.py
-│       │   ├── option.py
-│       │   ├── question.py
-│       │   └── user.py
-│       │   └── vote.py
-│       ├── exceptions
-│       │   ├── __init__.py
-│       │   ├── login_excs.py
-│       │   ├── notfound_excs.py
-│       │   └── other_excs.py
-│       ├── schemas
-│       │   ├── __init__.py
-│       │   ├── option.py
-│       │   ├── question.py
-│       │   └── user.py
-│       │   └── vote.py
-│       │   └── token.py
-│       ├── services
-│       │   ├── __init__.py
-│       │   ├── option.py
-│       │   ├── question.py
-│       │   └── user.py
-│       │   └── vote.py
-│       └── repository
-│       │   ├── __init__.py
-│       │   ├── option.py
-│       │   ├── question.py
-│       │   └── user.py
-│       │   └── vote.py
-└── └── test
-        ├── __init__.py
-        ├── conftest.py
-        ├── test_option_routes.py
-        ├── test_question_routes.py
-        ├── test_user_routes.py
-        ├── test_vote_routes.py
+│ └── app
+│ ├── init.py
+│ ├── main.py
+│ ├── api
+│ │ └── v1
+│ │ ├── init.py
+│ │ └── routes.py
+│ ├── core
+│ │ ├── init.py
+│ │ ├── authentication.py
+│ │ ├── database.py
+│ │ └── settings.py
+│ ├── models
+│ │ ├── init.py
+│ │ ├── option.py
+│ │ ├── question.py
+│ │ ├── user.py
+│ │ └── vote.py
+│ ├── exceptions
+│ │ ├── init.py
+│ │ ├── login_excs.py
+│ │ ├── notfound_excs.py
+│ │ └── other_excs.py
+│ ├── schemas
+│ │ ├── init.py
+│ │ ├── option.py
+│ │ ├── question.py
+│ │ ├── user.py
+│ │ ├── vote.py
+│ │ └── token.py
+│ ├── services
+│ │ ├── init.py
+│ │ ├── option.py
+│ │ ├── question.py
+│ │ ├── user.py
+│ │ └── vote.py
+│ └── repository
+│ ├── init.py
+│ ├── option.py
+│ ├── question.py
+│ ├── user.py
+│ └── vote.py
+└── test
+├── init.py
+├── conftest.py
+├── test_option_routes.py
+├── test_question_routes.py
+├── test_user_routes.py
+└── test_vote_routes.py
+```
+
+## Setup Instructions
+1. Clone the repository
+2. Setup virtual environment
+    - uv venv
+    - source .venv/bin/activate
+3. Install dependencies
+    - uv pip install -e .
+4. Run the server
+    - uvicorn app.main:app --reload
