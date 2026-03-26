@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
 from app.core.database import get_db
+from app.core.authentication import require_admin
+from app.models.user import User
 from app.schemas.option import OptionCreate, OptionOut
 from app.services.option import option_service
 
@@ -31,5 +33,9 @@ def get_option(option_id: int, db: Session = Depends(get_db)):
 
 
 @api_router.post("/", response_model=OptionOut, status_code=201)
-def create_option(option: OptionCreate, db: Session = Depends(get_db)):
+def create_option(
+    option: OptionCreate,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(require_admin),
+):
     return option_service.create(db, option)

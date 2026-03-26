@@ -7,14 +7,13 @@ from app.core.database import engine
 
 from app.core.settings import settings
 
-# import all models cause they all work now
-
 
 def create_db_and_tables() -> None:
     SQLModel.metadata.create_all(engine)
 
 
 app = FastAPI(title=settings.app_name, version=settings.app_version)
+
 
 app.add_middleware(
     CORSMiddleware,

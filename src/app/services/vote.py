@@ -7,7 +7,11 @@ from app.repository.question import QuestionRepository
 from app.repository.option import OptionRepository
 from app.schemas.vote import VoteCreate
 
-from app.exceptions.notfound_excs import vote_not_found_exception, question_not_found_exception, option_not_found_exception
+from app.exceptions.notfound_excs import (
+    vote_not_found_exception,
+    question_not_found_exception,
+    option_not_found_exception,
+)
 from app.exceptions.other_excs import user_already_voted_exception, bad_option_exception
 
 if TYPE_CHECKING:
