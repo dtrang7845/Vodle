@@ -2,13 +2,88 @@ Metadata-Version: 2.4
 Name: voting-website
 Version: 0.1.0
 Summary: Add your description here
-Requires-Python: >=3.14
+Requires-Python: >=3.11
 Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: fastapi[standard]>=0.133.0
 Requires-Dist: jwt>=1.4.0
+Requires-Dist: PyJWT>=2.0.0
 Requires-Dist: pre-commit>=4.5.1
-Requires-Dist: pwdlib>=0.3.0
+Requires-Dist: pwdlib[argon2]>=0.3.0
+Requires-Dist: pytest>=9.0.2
 Requires-Dist: ruff>=0.15.2
 Requires-Dist: sqlmodel>=0.0.37
+Requires-Dist: uvicorn>=0.30.0
 Dynamic: license-file
+
+# Voting Website Backend
+
+This project is the backend for a full-stack voting web application built with:
+**FastAPI**
+**SQLModel**
+**Pydantic**
+
+
+## Features
+- User Registration
+- Create and manage voting requests
+- Add options to questions
+- Submit votes (one per question)
+- Retrieve voting results according to question
+
+
+## Project Structure
+
+.
+├── pyproject.toml
+├── README.md
+├── src
+│   └── app
+│       ├── __init__.py
+│       ├── main.py
+│       ├── api
+│       │   └── v1
+│       │       ├── __init__.py
+│       │       └── routes.py
+│       ├── core
+│       │   ├── __init__.py
+│       │   ├── authentication.py
+│       │   ├── database.py
+│       │   └── settings.py
+│       ├── models
+│       │   ├── __init__.py
+│       │   ├── option.py
+│       │   ├── question.py
+│       │   └── user.py
+│       │   └── vote.py
+│       ├── exceptions
+│       │   ├── __init__.py
+│       │   ├── login_excs.py
+│       │   ├── notfound_excs.py
+│       │   └── other_excs.py
+│       ├── schemas
+│       │   ├── __init__.py
+│       │   ├── option.py
+│       │   ├── question.py
+│       │   └── user.py
+│       │   └── vote.py
+│       │   └── token.py
+│       ├── services
+│       │   ├── __init__.py
+│       │   ├── option.py
+│       │   ├── question.py
+│       │   └── user.py
+│       │   └── vote.py
+│       └── repository
+│       │   ├── __init__.py
+│       │   ├── option.py
+│       │   ├── question.py
+│       │   └── user.py
+│       │   └── vote.py
+└── └── test
+        ├── __init__.py
+        ├── conftest.py
+        ├── test_option_routes.py
+        ├── test_question_routes.py
+        ├── test_user_routes.py
+        ├── test_vote_routes.py

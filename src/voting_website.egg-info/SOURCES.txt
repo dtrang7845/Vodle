@@ -9,6 +9,9 @@ src/app/core/__init__.py
 src/app/core/authentication.py
 src/app/core/database.py
 src/app/core/settings.py
+src/app/exceptions/login_excs.py
+src/app/exceptions/notfound_excs.py
+src/app/exceptions/other_excs.py
 src/app/models/__init__.py
 src/app/models/option.py
 src/app/models/question.py
@@ -24,6 +27,7 @@ src/app/routes/option.py
 src/app/routes/question.py
 src/app/routes/user.py
 src/app/routes/vote.py
+src/app/schemas/__init__.py
 src/app/schemas/option.py
 src/app/schemas/question.py
 src/app/schemas/token.py
