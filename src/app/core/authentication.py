@@ -8,7 +8,8 @@ from pwdlib import PasswordHash
 from sqlmodel import Session
 from app.core.settings import settings
 from app.core.database import get_db
-from app.models.user import User
+from app.models.user import User, UserRole
+from app.exceptions.other_excs import admin_required_exception
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
@@ -123,3 +124,9 @@ def get_current_user(
         )
 
     return user
+
+
+def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role != UserRole.ADMIN:
+        raise admin_required_exception
+    return current_user

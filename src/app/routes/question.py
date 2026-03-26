@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
+from app.core.authentication import require_admin
 from app.core.database import get_db
+from app.models.user import User
 from app.schemas.question import QuestionCreate, QuestionOut, QuestionWithResults
 from app.services.question import question_service
 
@@ -30,5 +32,9 @@ def get_question_with_results(question_id: int, db: Session = Depends(get_db)):
 
 
 @api_router.post("/", response_model=QuestionOut, status_code=201)
-def create_question(question: QuestionCreate, db: Session = Depends(get_db)):
+def create_question(
+    question: QuestionCreate,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(require_admin),
+):
     return question_service.create(db, question)

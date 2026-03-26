@@ -5,7 +5,10 @@ from app.repository.option import OptionRepository
 from app.repository.question import QuestionRepository
 from app.schemas.option import OptionCreate
 
-from app.exceptions.notfound_excs import question_not_found_exception, option_not_found_exception
+from app.exceptions.notfound_excs import (
+    question_not_found_exception,
+    option_not_found_exception,
+)
 
 if TYPE_CHECKING:
     from sqlmodel import Session

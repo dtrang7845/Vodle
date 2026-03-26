@@ -5,7 +5,10 @@ from app.models.user import User
 from app.repository.user import UserRepository
 from app.schemas.user import UserCreate
 
-from app.exceptions.login_excs import username_already_exists_exception, email_already_exists_exception
+from app.exceptions.login_excs import (
+    username_already_exists_exception,
+    email_already_exists_exception,
+)
 
 if TYPE_CHECKING:
     from sqlmodel import Session
