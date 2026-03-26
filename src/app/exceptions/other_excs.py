@@ -15,9 +15,9 @@ admin_required_exception = HTTPException(
     detail="Admin privileges required",
 )
 
-user_vote_deletion_exception = HTTPException(
+user_vote_modify_exception = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,
-    detail="User is not authorized to delete this vote",
+    detail="User is not authorized to modify this vote",
 )
 
 user_unauthorized_exception = HTTPException(

@@ -29,6 +29,7 @@ def auth_headers(token: str) -> dict[str, str]:
 
 def create_question(
     client,
+    admin_token,
     title="Best color?",
     description="Choose one",
     question_text="What is your favorite color?",
@@ -40,18 +41,20 @@ def create_question(
             "description": description,
             "question_text": question_text,
         },
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert response.status_code == 201, response.json()
     return response.json()
 
 
-def create_option(client, question_id, option_text="Blue"):
+def create_option(client, admin_token, question_id, option_text="Blue"):
     response = client.post(
         "/api/v1/option/",
         json={
             "question_id": question_id,
             "option_text": option_text,
         },
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert response.status_code == 201, response.json()
     return response.json()
@@ -70,11 +73,11 @@ def create_vote(client, token, question_id, option_id):
     return response.json()
 
 
-def test_create_vote(client):
+def test_create_vote(client, admin_token):
     user = create_user(client, "voter1")
     token = login_user(client, user["email"])["access_token"]
-    question = create_question(client)
-    option = create_option(client, question["id"], "Blue")
+    question = create_question(client, admin_token)
+    option = create_option(client, admin_token, question["id"], "Blue")
 
     vote = create_vote(client, token, question["id"], option["id"])
 
@@ -84,11 +87,11 @@ def test_create_vote(client):
     assert vote["option_id"] == option["id"]
 
 
-def test_get_votes(client):
+def test_get_votes(client, admin_token):
     user = create_user(client, "voter1")
     token = login_user(client, user["email"])["access_token"]
-    question = create_question(client)
-    option = create_option(client, question["id"], "Blue")
+    question = create_question(client, admin_token)
+    option = create_option(client, admin_token, question["id"], "Blue")
     create_vote(client, token, question["id"], option["id"])
 
     response = client.get("/api/v1/vote/")
@@ -99,11 +102,11 @@ def test_get_votes(client):
     assert len(data) >= 1
 
 
-def test_get_vote_by_id(client):
+def test_get_vote_by_id(client, admin_token):
     user = create_user(client, "voter1")
     token = login_user(client, user["email"])["access_token"]
-    question = create_question(client)
-    option = create_option(client, question["id"], "Blue")
+    question = create_question(client, admin_token)
+    option = create_option(client, admin_token, question["id"], "Blue")
     vote = create_vote(client, token, question["id"], option["id"])
 
     response = client.get(f"/api/v1/vote/{vote['id']}")
@@ -119,11 +122,11 @@ def test_get_vote_not_found(client):
     assert response.status_code == 404
 
 
-def test_create_vote_duplicate_same_user_same_question(client):
+def test_create_vote_duplicate_same_user_same_question(client, admin_token):
     user = create_user(client, "voter1")
     token = login_user(client, user["email"])["access_token"]
-    question = create_question(client)
-    option = create_option(client, question["id"], "Blue")
+    question = create_question(client, admin_token)
+    option = create_option(client, admin_token, question["id"], "Blue")
 
     create_vote(client, token, question["id"], option["id"])
 
@@ -140,9 +143,9 @@ def test_create_vote_duplicate_same_user_same_question(client):
     assert response.json()["detail"] == "User has already voted on this question"
 
 
-def test_create_vote_without_auth(client):
-    question = create_question(client)
-    option = create_option(client, question["id"], "Blue")
+def test_create_vote_without_auth(client, admin_token):
+    question = create_question(client, admin_token)
+    option = create_option(client, admin_token, question["id"], "Blue")
 
     response = client.post(
         "/api/v1/vote/",
@@ -153,3 +156,49 @@ def test_create_vote_without_auth(client):
     )
 
     assert response.status_code == 401
+
+def test_update_vote(client, admin_token):
+    user = create_user(client, "voter1")
+    token = login_user(client, user["email"])["access_token"]
+    question = create_question(client, admin_token)
+    option1 = create_option(client, admin_token, question["id"], "Blue")
+    option2 = create_option(client, admin_token, question["id"], "Red")
+    vote = create_vote(client, token, question["id"], option1["id"])
+    
+    response = client.put(
+        f"/api/v1/vote/{vote['id']}",
+        json={"option_id": option2["id"]},
+        headers=auth_headers(token),
+    )
+    assert response.status_code == 200
+    assert response.json()["option_id"] == option2["id"]
+
+def test_delete_vote(client, admin_token):
+    user = create_user(client, "voter1")
+    token = login_user(client, user["email"])["access_token"]
+    question = create_question(client, admin_token)
+    option = create_option(client, admin_token, question["id"], "Blue")
+    vote = create_vote(client, token, question["id"], option["id"])
+    
+    response = client.delete(
+        f"/api/v1/vote/{vote['id']}",
+        headers=auth_headers(token),
+    )
+    assert response.status_code == 204
+
+
+def test_delete_vote_unauthorized(client, admin_token):
+    user1 = create_user(client, "voter1")
+    user2 = create_user(client, "voter2")
+    token1 = login_user(client, user1["email"])["access_token"]
+    token2 = login_user(client, user2["email"])["access_token"]
+    question = create_question(client, admin_token)
+    option = create_option(client, admin_token, question["id"], "Blue")
+    vote = create_vote(client, token1, question["id"], option["id"])
+    
+    response = client.delete(
+        f"/api/v1/vote/{vote['id']}",
+        headers=auth_headers(token2),
+    )
+    assert response.status_code == 403
+    

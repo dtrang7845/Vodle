@@ -35,6 +35,32 @@ def test_create_user(client):
     assert data["email"] == "logan@example.com"
 
 
+def test_create_duplicate_user(client):
+    create_user(client, "user1")
+    response = client.post(
+        "/api/v1/user/",
+        json={
+            "username": "user2",
+            "email": "user1@example.com",
+            "password": "secret123",
+        },
+    )
+    assert response.status_code == 409
+
+
+def test_create_duplicate_username(client):
+    create_user(client, "user1")
+    response = client.post(
+        "/api/v1/user/",
+        json={
+            "username": "user1",
+            "email": "different@example.com",
+            "password": "secret123",
+        },
+    )
+    assert response.status_code == 409
+
+
 def test_get_users(client):
     create_user(client, "user1")
     create_user(client, "user2")
@@ -72,6 +98,15 @@ def test_login_user(client):
     assert token_data["token_type"] == "bearer"
 
 
+def test_login_wrong_password(client):
+    create_user(client, "logan")
+    response = client.post(
+        "/api/v1/user/login",
+        data={"username": "logan@example.com", "password": "wrongpassword"},
+    )
+    assert response.status_code == 401
+
+
 def test_get_me(client):
     create_user(client, "logan")
     token_data = login_user(client)
@@ -85,3 +120,51 @@ def test_get_me(client):
     data = response.json()
     assert data["username"] == "logan"
     assert data["email"] == "logan@example.com"
+
+
+def test_update_user(client):
+    user = create_user(client, "logan")
+    token_data = login_user(client)
+
+    response = client.put(
+        f"/api/v1/user/{user['id']}",
+        json={"password": "newpassword"},
+        headers=auth_headers(token_data["access_token"]),
+    )
+    assert response.status_code == 200
+
+
+def test_update_user_unauthorized(client):
+    user1 = create_user(client, "user1")
+    create_user(client, "user2")
+    token2 = login_user(client, "user2@example.com")["access_token"]
+    
+    response = client.put(
+        f"/api/v1/user/{user1['id']}",
+        json={"password": "newpassword"},
+        headers=auth_headers(token2),
+    )
+    assert response.status_code == 403
+
+
+def test_delete_user(client):
+    user = create_user(client, "logan")
+    token_data = login_user(client)
+
+    response = client.delete(
+        f"/api/v1/user/{user['id']}",
+        headers=auth_headers(token_data["access_token"]),
+    )
+    assert response.status_code == 204
+
+
+def test_delete_user_unauthorized(client):
+    user1 = create_user(client, "user1")
+    create_user(client, "user2")
+    token2 = login_user(client, "user2@example.com")["access_token"]
+    
+    response = client.delete(
+        f"/api/v1/user/{user1['id']}",
+        headers=auth_headers(token2),
+    )
+    assert response.status_code == 403

@@ -7,6 +7,10 @@ class VoteCreate(BaseModel):
     option_id: int
 
 
+class VoteUpdate(BaseModel):
+    option_id: int
+
+
 class VoteOut(BaseModel):
     id: int
     user_id: int

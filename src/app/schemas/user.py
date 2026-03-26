@@ -18,9 +18,7 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    password: str | None = None
-    email: EmailStr | None = None
-    username: str | None = None
+    password: str
 
 # -----------------------------
 # Response (output)

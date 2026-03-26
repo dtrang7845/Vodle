@@ -43,7 +43,12 @@ class OptionService:
         db_option = self.repository.get_by_id(db, option_id)
         if not db_option:
             raise option_not_found_exception
-        self.repository.update(db, db_option, option)
+        
+        update_data = option.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_option, key, value)
+        
+        return self.repository.update(db, db_option)
 
     def delete(self, db: "Session", option_id: int) -> None:
         db_option = self.repository.get_by_id(db, option_id)

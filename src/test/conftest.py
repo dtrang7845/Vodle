@@ -34,3 +34,24 @@ def client_fixture(session: Session):
         yield client
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(name="admin_token")
+def admin_token_fixture(client: TestClient, session: Session) -> str:
+    from app.models.user import User, UserRole
+    from app.core.authentication import get_password_hash
+
+    admin = User(
+        username="admin",
+        email="admin@test.com",
+        password_hash=get_password_hash("admin123"),
+        role=UserRole.ADMIN,
+    )
+    session.add(admin)
+    session.commit()
+    
+    response = client.post(
+        "/api/v1/user/login",
+        data={"username": "admin@test.com", "password": "admin123"},
+    )
+    return response.json()["access_token"]

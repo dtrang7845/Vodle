@@ -61,7 +61,12 @@ class QuestionService:
         db_question = self.repository.get_by_id(db, question_id)
         if not db_question:
             raise question_not_found_exception
-        return self.repository.update(db, db_question, question)
+        
+        update_data = question.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_question, key, value)
+        
+        return self.repository.update(db, db_question)
 
     def delete(self, db: "Session", question_id: int) -> None:
         db_question = self.repository.get_by_id(db, question_id)
