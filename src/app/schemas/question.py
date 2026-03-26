@@ -9,7 +9,7 @@ class QuestionBase(BaseModel):
 
 class QuestionCreate(QuestionBase):
     question_text: str
-    
+
 
 class QuestionUpdate(BaseModel):
     title: str | None = None

@@ -4,7 +4,12 @@ from sqlmodel import Session
 from app.core.authentication import require_admin
 from app.core.database import get_db
 from app.models.user import User
-from app.schemas.question import QuestionCreate, QuestionOut, QuestionWithResults, QuestionUpdate
+from app.schemas.question import (
+    QuestionCreate,
+    QuestionOut,
+    QuestionWithResults,
+    QuestionUpdate,
+)
 from app.services.question import question_service
 
 from app.exceptions.notfound_excs import question_not_found_exception

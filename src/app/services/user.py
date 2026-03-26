@@ -55,12 +55,12 @@ class UserService:
         )
 
         return self.repository.create(db, db_user)
-    
+
     def update(self, db: "Session", user_id: int, user: UserUpdate) -> User:
         db_user = self.repository.get_by_id(db, user_id)
         if not db_user:
             raise user_not_found_exception
-        
+
         db_user.password_hash = get_password_hash(user.password)
         return self.repository.update(db, db_user)
 
@@ -73,7 +73,7 @@ class UserService:
             return None
 
         return user
-    
+
     def delete(self, db: "Session", user_id: int) -> None:
         db_user = self.repository.get_by_id(db, user_id)
         if not db_user:

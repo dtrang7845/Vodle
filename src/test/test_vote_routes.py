@@ -157,6 +157,7 @@ def test_create_vote_without_auth(client, admin_token):
 
     assert response.status_code == 401
 
+
 def test_update_vote(client, admin_token):
     user = create_user(client, "voter1")
     token = login_user(client, user["email"])["access_token"]
@@ -164,7 +165,7 @@ def test_update_vote(client, admin_token):
     option1 = create_option(client, admin_token, question["id"], "Blue")
     option2 = create_option(client, admin_token, question["id"], "Red")
     vote = create_vote(client, token, question["id"], option1["id"])
-    
+
     response = client.put(
         f"/api/v1/vote/{vote['id']}",
         json={"option_id": option2["id"]},
@@ -173,13 +174,14 @@ def test_update_vote(client, admin_token):
     assert response.status_code == 200
     assert response.json()["option_id"] == option2["id"]
 
+
 def test_delete_vote(client, admin_token):
     user = create_user(client, "voter1")
     token = login_user(client, user["email"])["access_token"]
     question = create_question(client, admin_token)
     option = create_option(client, admin_token, question["id"], "Blue")
     vote = create_vote(client, token, question["id"], option["id"])
-    
+
     response = client.delete(
         f"/api/v1/vote/{vote['id']}",
         headers=auth_headers(token),
@@ -195,10 +197,9 @@ def test_delete_vote_unauthorized(client, admin_token):
     question = create_question(client, admin_token)
     option = create_option(client, admin_token, question["id"], "Blue")
     vote = create_vote(client, token1, question["id"], option["id"])
-    
+
     response = client.delete(
         f"/api/v1/vote/{vote['id']}",
         headers=auth_headers(token2),
     )
     assert response.status_code == 403
-    

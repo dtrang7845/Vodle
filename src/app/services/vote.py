@@ -13,7 +13,7 @@ from app.exceptions.notfound_excs import (
     option_not_found_exception,
 )
 from app.exceptions.other_excs import (
-    user_already_voted_exception, 
+    user_already_voted_exception,
     bad_option_exception,
     user_vote_modify_exception,
 )
@@ -63,14 +63,16 @@ class VoteService:
             option_id=vote.option_id,
         )
         return self.repository.create(db, db_vote)
-    
-    def update(self, db: "Session", vote_id: int, vote: VoteUpdate, current_user_id: int) -> Vote:
+
+    def update(
+        self, db: "Session", vote_id: int, vote: VoteUpdate, current_user_id: int
+    ) -> Vote:
         db_vote = self.repository.get_by_id(db, vote_id)
         if db_vote is None:
             raise vote_not_found_exception
         if db_vote.user_id != current_user_id:
             raise user_vote_modify_exception
-        
+
         db_vote.option_id = vote.option_id
         return self.repository.update(db, db_vote)
 

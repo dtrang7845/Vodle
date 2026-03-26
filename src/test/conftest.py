@@ -49,7 +49,7 @@ def admin_token_fixture(client: TestClient, session: Session) -> str:
     )
     session.add(admin)
     session.commit()
-    
+
     response = client.post(
         "/api/v1/user/login",
         data={"username": "admin@test.com", "password": "admin123"},

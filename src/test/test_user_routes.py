@@ -138,7 +138,7 @@ def test_update_user_unauthorized(client):
     user1 = create_user(client, "user1")
     create_user(client, "user2")
     token2 = login_user(client, "user2@example.com")["access_token"]
-    
+
     response = client.put(
         f"/api/v1/user/{user1['id']}",
         json={"password": "newpassword"},
@@ -162,7 +162,7 @@ def test_delete_user_unauthorized(client):
     user1 = create_user(client, "user1")
     create_user(client, "user2")
     token2 = login_user(client, "user2@example.com")["access_token"]
-    
+
     response = client.delete(
         f"/api/v1/user/{user1['id']}",
         headers=auth_headers(token2),

@@ -59,7 +59,7 @@ def update_user(
     user_id: int,
     user: UserUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     if current_user.id != user_id and current_user.role != UserRole.ADMIN:
         raise user_unauthorized_exception
@@ -70,7 +70,7 @@ def update_user(
 def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     if current_user.id != user_id and current_user.role != UserRole.ADMIN:
         raise user_unauthorized_exception

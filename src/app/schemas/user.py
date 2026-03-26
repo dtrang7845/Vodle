@@ -20,6 +20,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     password: str
 
+
 # -----------------------------
 # Response (output)
 # -----------------------------

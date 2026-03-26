@@ -91,7 +91,9 @@ def test_update_option(client, admin_token):
 
     response = client.put(
         f"/api/v1/option/{option['id']}",
-        json={"option_text": "Red",},
+        json={
+            "option_text": "Red",
+        },
         headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert response.status_code == 200, response.json()
@@ -111,7 +113,7 @@ def test_delete_option(client, admin_token):
 
 def test_create_option_without_auth(client, admin_token):
     question = create_question(client, admin_token)
-    
+
     response = client.post(
         "/api/v1/option/",
         json={"question_id": question["id"], "option_text": "Blue"},

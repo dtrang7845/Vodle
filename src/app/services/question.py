@@ -4,7 +4,12 @@ from app.models.question import Question
 from app.repository.question import QuestionRepository
 from app.repository.option import OptionRepository
 from app.repository.vote import VoteRepository
-from app.schemas.question import QuestionCreate, QuestionResultItem, QuestionWithResults, QuestionUpdate
+from app.schemas.question import (
+    QuestionCreate,
+    QuestionResultItem,
+    QuestionWithResults,
+    QuestionUpdate,
+)
 
 from app.exceptions.notfound_excs import question_not_found_exception
 
@@ -56,16 +61,18 @@ class QuestionService:
     def create(self, db: "Session", question: QuestionCreate) -> Question:
         db_question = Question(**question.model_dump())
         return self.repository.create(db, db_question)
-    
-    def update(self, db: "Session", question_id: int, question: QuestionUpdate) -> Question:
+
+    def update(
+        self, db: "Session", question_id: int, question: QuestionUpdate
+    ) -> Question:
         db_question = self.repository.get_by_id(db, question_id)
         if not db_question:
             raise question_not_found_exception
-        
+
         update_data = question.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_question, key, value)
-        
+
         return self.repository.update(db, db_question)
 
     def delete(self, db: "Session", question_id: int) -> None:

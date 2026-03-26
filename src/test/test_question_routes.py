@@ -51,10 +51,10 @@ def test_get_questions(client, admin_token):
 
 def test_get_question_by_id(client, admin_token):
     question = create_question(client, admin_token)
-    
+
     response = client.get(f"/api/v1/question/{question['id']}")
     assert response.status_code == 200, response.json()
-    
+
     data = response.json()
     assert data["id"] == question["id"]
     assert data["question_text"] == "What is the best programming language?"
@@ -67,7 +67,7 @@ def test_get_question_not_found(client):
 
 def test_update_question(client, admin_token):
     question = create_question(client, admin_token)
-    
+
     response = client.put(
         f"/api/v1/question/{question['id']}",
         json={"title": "Updated title"},
@@ -88,7 +88,7 @@ def test_update_question_not_found(client, admin_token):
 
 def test_delete_question(client, admin_token):
     question = create_question(client, admin_token)
-    
+
     response = client.delete(
         f"/api/v1/question/{question['id']}",
         headers={"Authorization": f"Bearer {admin_token}"},
