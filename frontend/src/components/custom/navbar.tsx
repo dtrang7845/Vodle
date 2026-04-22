@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { VodleLogo } from "@/components/custom/vodle-logo";
+import { ModeToggle } from "@/components/custom/mode-toggle";
 
 const leftLinks = [
   { href: "/vote", label: "Vote" },
@@ -36,8 +37,8 @@ export function Navbar() {
         onClick={() => setIsOpen(false)}
         className={`text-sm transition-colors ${
           isActive
-            ? "font-medium text-black"
-            : "text-muted-foreground hover:text-black"
+            ? "font-medium text-foreground"
+            : "text-muted-foreground hover:text-foreground"
         }`}
       >
         {link.label}
@@ -49,8 +50,9 @@ export function Navbar() {
     <header className="w-full border-b bg-background">
       <nav className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-4 py-4 md:px-8">
         {/* Desktop Left Links */}
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {leftLinks.map(renderLink)}
+          <ModeToggle />
         </div>
 
         {/* Mobile Menu Button */}
@@ -76,7 +78,7 @@ export function Navbar() {
         </div>
 
         {/* Desktop Right Links */}
-        <div className="hidden items-center justify-end gap-8 md:flex">
+        <div className="hidden items-center justify-end gap-6 md:flex">
           {rightLinks.map(renderLink)}
         </div>
 
@@ -93,6 +95,9 @@ export function Navbar() {
                 {renderLink(link)}
               </div>
             ))}
+            <div className="pt-3">
+              <ModeToggle />
+            </div>
           </div>
         </div>
       )}

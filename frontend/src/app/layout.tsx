@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/custom/navbar";
+import { LayoutShell } from "@/components/custom/layout-shell";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -19,17 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={playfair.className}>
-        <div className="min-h-screen">
-          <Navbar />
-
-          <main className="px-6 py-10">
-            <div className="mx-auto w-full max-w-2xl">
-              {children}
-            </div>
-          </main>
-        </div>
+        <ThemeProvider>
+          <LayoutShell>{children}</LayoutShell>
+        </ThemeProvider>
       </body>
     </html>
   );
