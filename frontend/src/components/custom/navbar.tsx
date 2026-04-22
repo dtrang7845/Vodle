@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { VodleLogo } from "@/components/custom/vodle-logo";
 import { ModeToggle } from "@/components/custom/mode-toggle";
+import { clearToken, getToken } from "@/lib/auth";
 
 const leftLinks = [
   { href: "/vote", label: "Vote" },
@@ -25,7 +26,20 @@ type NavLink = {
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(Boolean(getToken()));
+  }, [pathname]);
+
+  const handleLogout = () => {
+    clearToken();
+    setIsAuthenticated(false);
+    setIsOpen(false);
+    router.push("/login");
+  };
 
   const renderLink = (link: NavLink) => {
     const isActive = pathname.startsWith(link.href);
@@ -80,6 +94,15 @@ export function Navbar() {
         {/* Desktop Right Links */}
         <div className="hidden items-center justify-end gap-6 md:flex">
           {rightLinks.map(renderLink)}
+          {isAuthenticated ? (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Logout
+            </button>
+          ) : null}
         </div>
 
         {/* Mobile spacer so logo stays centered */}
@@ -95,6 +118,15 @@ export function Navbar() {
                 {renderLink(link)}
               </div>
             ))}
+            {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="py-3 text-left text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Logout
+              </button>
+            ) : null}
             <div className="pt-3">
               <ModeToggle />
             </div>

@@ -1,13 +1,16 @@
 from typing import TYPE_CHECKING
 
 from fastapi import HTTPException, status
+from sqlmodel import select, func
 
 from app.models.question import Question
 from app.models.option import Option
+from app.models.vote import Vote
 from app.repository.question import QuestionRepository
 from app.schemas.question import (
     QuestionCreate,
     QuestionCreateWithOptions,
+    QuestionWithResults,
     QuestionUpdate,
 )
 
@@ -34,14 +37,47 @@ class QuestionService:
             )
         return question
 
-    def get_with_results(self, db: "Session", question_id: int) -> Question:
+    def get_with_results(
+        self,
+        db: "Session",
+        question_id: int,
+    ) -> QuestionWithResults:
         question = self.repository.get_by_id(db, question_id)
         if question is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Question not found",
             )
-        return question
+
+        options = db.exec(
+            select(Option).where(Option.question_id == question_id).order_by(Option.id)
+        ).all()
+
+        vote_counts = {
+            option_id: votes
+            for option_id, votes in db.exec(
+                select(Vote.option_id, func.count(Vote.id))
+                .where(Vote.question_id == question_id)
+                .group_by(Vote.option_id)
+            ).all()
+        }
+
+        return QuestionWithResults(
+            id=question.id,
+            title=question.title,
+            description=question.description,
+            question_text=question.question_text,
+            publish_date=question.publish_date,
+            created_at=question.created_at,
+            results=[
+                {
+                    "option_id": option.id,
+                    "option_text": option.option_text,
+                    "votes": vote_counts.get(option.id, 0),
+                }
+                for option in options
+            ],
+        )
 
     def create(self, db: "Session", question: QuestionCreate) -> Question:
         db_question = Question(**question.model_dump())

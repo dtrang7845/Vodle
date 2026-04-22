@@ -23,6 +23,15 @@ def get_votes_by_question(question_id: int, db: Session = Depends(get_db)):
     return vote_service.get_by_question_id(db, question_id)
 
 
+@api_router.get("/me/question/{question_id}", response_model=VoteOut | None)
+def get_current_user_vote_for_question(
+    question_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return vote_service.get_current_user_vote(db, question_id, current_user.id)
+
+
 @api_router.get("/{vote_id}", response_model=VoteOut)
 def get_vote(vote_id: int, db: Session = Depends(get_db)):
     vote = vote_service.get_by_id(db, vote_id)

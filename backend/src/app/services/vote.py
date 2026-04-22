@@ -41,6 +41,15 @@ class VoteService:
             raise question_not_found_exception
         return self.repository.get_by_question_id(db, question_id)
 
+    def get_current_user_vote(
+        self, db: "Session", question_id: int, current_user_id: int
+    ) -> Vote | None:
+        db_question = self.question_repository.get_by_id(db, question_id)
+        if not db_question:
+            raise question_not_found_exception
+
+        return self.repository.get_existing_vote(db, current_user_id, question_id)
+
     def create(self, db: "Session", vote: VoteCreate, user_id: int) -> Vote:
         db_question = self.question_repository.get_by_id(db, vote.question_id)
         if db_question is None:

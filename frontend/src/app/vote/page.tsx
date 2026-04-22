@@ -1,6 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getToken } from "@/lib/auth";
+import { API_BASE_URL } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -21,14 +24,24 @@ type TodayQuestion = {
   options: Option[];
 };
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+type ExistingVote = {
+  id: number;
+  user_id: number;
+  question_id: number;
+  option_id: number;
+  created_at: string;
+};
 
 export default function VotePage() {
+  const router = useRouter();
   const [question, setQuestion] = useState<TodayQuestion | null>(null);
   const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
+  const [existingVote, setExistingVote] = useState<ExistingVote | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTodayQuestion = async () => {
@@ -54,6 +67,120 @@ export default function VotePage() {
 
     fetchTodayQuestion();
   }, []);
+
+  useEffect(() => {
+    const fetchExistingVote = async () => {
+      if (!question) {
+        setExistingVote(null);
+        return;
+      }
+
+      const token = getToken();
+      if (!token) {
+        setExistingVote(null);
+        setSubmitSuccess(null);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/v1/vote/me/question/${question.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (response.status === 401) {
+          setExistingVote(null);
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Failed to load your saved vote.");
+        }
+
+        const data = (await response.json()) as ExistingVote | null;
+        setExistingVote(data);
+        if (data) {
+          setSelectedOptionId(data.option_id);
+          setSubmitSuccess("You already voted on today's question.");
+          setSubmitError(null);
+        } else {
+          setSubmitSuccess(null);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchExistingVote();
+  }, [question]);
+
+  const handleVoteSubmit = async () => {
+    if (!question || selectedOptionId === null || existingVote) {
+      return;
+    }
+
+    const token = getToken();
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/vote/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          question_id: question.id,
+          option_id: selectedOptionId,
+        }),
+      });
+
+      if (response.status === 401) {
+        router.push("/login");
+        return;
+      }
+
+      if (response.status === 409) {
+        const errorData = (await response.json().catch(() => null)) as {
+          detail?: string;
+        } | null;
+        setSubmitError(
+          errorData?.detail ?? "You have already voted on this question.",
+        );
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as {
+          detail?: string;
+        } | null;
+        throw new Error(errorData?.detail ?? "Unable to submit your vote.");
+      }
+
+      const createdVote = (await response.json()) as ExistingVote;
+      setExistingVote(createdVote);
+      setSubmitSuccess("Thanks for voting. Your response has been recorded.");
+    } catch (submitVoteError) {
+      const message =
+        submitVoteError instanceof Error
+          ? submitVoteError.message
+          : "Unable to submit your vote.";
+      setSubmitError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const formattedDate = question
     ? new Date(question.publish_date).toLocaleDateString("en-US", {
@@ -129,11 +256,18 @@ export default function VotePage() {
                 return (
                   <button
                     key={option.id}
-                    onClick={() => setSelectedOptionId(option.id)}
+                    onClick={() => {
+                      if (!existingVote) {
+                        setSelectedOptionId(option.id);
+                      }
+                    }}
+                    disabled={Boolean(existingVote)}
                     className={`w-full rounded-md border px-4 py-3 text-base font-medium transition ${
                       isSelected
                         ? "bg-black text-white"
                         : "bg-white text-black hover:bg-muted"
+                    } ${
+                      existingVote ? "cursor-default opacity-80" : ""
                     }`}
                   >
                     {option.option_text}
@@ -142,13 +276,33 @@ export default function VotePage() {
               })}
             </div>
 
-            <Button className="w-full" disabled={selectedOptionId === null}>
-              Vote submission coming soon
+            <Button
+              className="w-full"
+              disabled={selectedOptionId === null || submitting || Boolean(existingVote)}
+              onClick={handleVoteSubmit}
+            >
+              {existingVote
+                ? "Vote Submitted"
+                : submitting
+                  ? "Submitting Vote..."
+                  : "Submit Vote"}
             </Button>
-            <p className="text-center text-xs text-muted-foreground">
-              Frontend selection is live. Authenticated vote submission is the next
-              backend/frontend step.
-            </p>
+            {submitError ? (
+              <p className="text-center text-sm text-destructive">
+                {submitError}
+              </p>
+            ) : null}
+            {submitSuccess ? (
+              <div className="space-y-3 text-center">
+                <p className="text-sm text-foreground">{submitSuccess}</p>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(`/results?questionId=${question.id}`)}
+                >
+                  View Results
+                </Button>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </section>

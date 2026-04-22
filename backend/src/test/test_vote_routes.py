@@ -122,6 +122,38 @@ def test_get_vote_by_id(client, admin_token):
     assert data["user_id"] == user["id"]
 
 
+def test_get_current_user_vote_for_question(client, admin_token):
+    user = create_user(client, "current_vote_user")
+    token = login_user(client, user["email"])["access_token"]
+    question = create_question(client, admin_token)
+    option = create_option(client, admin_token, question["id"], "Blue")
+    vote = create_vote(client, token, question["id"], option["id"])
+
+    response = client.get(
+        f"/api/v1/vote/me/question/{question['id']}",
+        headers=auth_headers(token),
+    )
+    assert response.status_code == 200, response.json()
+    assert response.json()["id"] == vote["id"]
+    assert response.json()["option_id"] == option["id"]
+
+
+def test_get_current_user_vote_for_question_returns_null_when_not_voted(
+    client, admin_token
+):
+    user = create_user(client, "no_vote_user")
+    token = login_user(client, user["email"])["access_token"]
+    question = create_question(client, admin_token)
+    create_option(client, admin_token, question["id"], "Blue")
+
+    response = client.get(
+        f"/api/v1/vote/me/question/{question['id']}",
+        headers=auth_headers(token),
+    )
+    assert response.status_code == 200, response.json()
+    assert response.json() is None
+
+
 def test_get_vote_not_found(client):
     response = client.get("/api/v1/vote/999999")
     assert response.status_code == 404
@@ -208,3 +240,27 @@ def test_delete_vote_unauthorized(client, admin_token):
         headers=auth_headers(token2),
     )
     assert response.status_code == 403
+
+
+def test_get_question_results(client, admin_token):
+    user = create_user(client, "results_user")
+    token = login_user(client, user["email"])["access_token"]
+    question = create_question(client, admin_token)
+    option1 = create_option(client, admin_token, question["id"], "Blue")
+    option2 = create_option(client, admin_token, question["id"], "Red")
+    create_vote(client, token, question["id"], option1["id"])
+
+    response = client.get(f"/api/v1/question/{question['id']}/results")
+    assert response.status_code == 200, response.json()
+
+    data = response.json()
+    assert data["id"] == question["id"]
+    assert len(data["results"]) == 2
+    assert any(
+        result["option_id"] == option1["id"] and result["votes"] == 1
+        for result in data["results"]
+    )
+    assert any(
+        result["option_id"] == option2["id"] and result["votes"] == 0
+        for result in data["results"]
+    )

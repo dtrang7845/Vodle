@@ -1,4 +1,10 @@
+"use client"
+
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+
+import { API_BASE_URL } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -16,6 +22,57 @@ import {
 import { Input } from "@/components/ui/input"
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const router = useRouter()
+  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.")
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/user/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as {
+          detail?: string
+        } | null
+        throw new Error(errorData?.detail ?? "Unable to create account.")
+      }
+
+      router.push("/login")
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to create account."
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <Card {...props}>
       <CardHeader>
@@ -23,20 +80,29 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         <CardDescription>
           Enter your information below to create your account
         </CardDescription>
-      </CardHeader>
+        </CardHeader>
       <CardContent>
-        <form>
+        <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" placeholder="John Doe" required />
+              <FieldLabel htmlFor="username">Username</FieldLabel>
+              <Input
+                id="username"
+                type="text"
+                placeholder="John-Doe123"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                required
+              />
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="email@example.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 required
               />
               <FieldDescription>
@@ -46,7 +112,14 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" required />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                minLength={8}
+              />
               <FieldDescription>
                 Must be at least 8 characters long.
               </FieldDescription>
@@ -55,18 +128,29 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" type="password" required />
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                required
+              />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
             <FieldGroup>
               <Field>
-                <Button type="submit">Create Account</Button>
-                <Button variant="outline" type="button">
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Creating Account..." : "Create Account"}
+                </Button>
+                <Button variant="outline" type="button" disabled>
                   Sign up with Google
                 </Button>
                 <FieldDescription className="px-6 text-center">
                   Already have an account? <Link href="/login">Sign in</Link>
                 </FieldDescription>
+                {error ? (
+                  <p className="text-center text-sm text-destructive">{error}</p>
+                ) : null}
               </Field>
             </FieldGroup>
           </FieldGroup>
