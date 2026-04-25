@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { LayoutShell } from "@/components/custom/layout-shell";
+import { PreferencesProvider } from "@/components/preferences-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const playfair = Playfair_Display({
@@ -23,7 +24,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={playfair.className}>
         <ThemeProvider>
-          <LayoutShell>{children}</LayoutShell>
+          <PreferencesProvider>
+            <LayoutShell>{children}</LayoutShell>
+          </PreferencesProvider>
         </ThemeProvider>
       </body>
     </html>

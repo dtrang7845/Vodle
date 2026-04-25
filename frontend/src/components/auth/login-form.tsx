@@ -4,7 +4,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-import { setToken } from "@/lib/auth"
 import { API_BASE_URL } from "@/lib/api"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -45,6 +44,7 @@ export function LoginForm({
 
       const response = await fetch(`${API_BASE_URL}/api/v1/user/login`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -57,13 +57,6 @@ export function LoginForm({
         } | null
         throw new Error(errorData?.detail ?? "Unable to log in.")
       }
-
-      const data = (await response.json()) as {
-        access_token: string
-        token_type: string
-      }
-
-      setToken(data.access_token)
       router.push("/vote")
     } catch (submitError) {
       const message =

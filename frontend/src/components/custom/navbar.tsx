@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 import { VodleLogo } from "@/components/custom/vodle-logo";
 import { ModeToggle } from "@/components/custom/mode-toggle";
-import { clearToken, getToken } from "@/lib/auth";
+import { logoutUser } from "@/lib/auth";
 
 const leftLinks = [
   { href: "/vote", label: "Vote" },
@@ -31,11 +32,22 @@ export function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    setIsAuthenticated(Boolean(getToken()));
+    const checkAuth = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/user/me`, {
+          credentials: "include",
+        });
+        setIsAuthenticated(response.ok);
+      } catch {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
   }, [pathname]);
 
-  const handleLogout = () => {
-    clearToken();
+  const handleLogout = async () => {
+    await logoutUser(API_BASE_URL);
     setIsAuthenticated(false);
     setIsOpen(false);
     router.push("/login");

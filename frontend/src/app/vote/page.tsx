@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getToken } from "@/lib/auth";
 import { API_BASE_URL } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -75,20 +74,11 @@ export default function VotePage() {
         return;
       }
 
-      const token = getToken();
-      if (!token) {
-        setExistingVote(null);
-        setSubmitSuccess(null);
-        return;
-      }
-
       try {
         const response = await fetch(
           `${API_BASE_URL}/api/v1/vote/me/question/${question.id}`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            credentials: "include",
           },
         );
 
@@ -123,12 +113,6 @@ export default function VotePage() {
       return;
     }
 
-    const token = getToken();
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     setSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(null);
@@ -136,9 +120,9 @@ export default function VotePage() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/vote/`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           question_id: question.id,

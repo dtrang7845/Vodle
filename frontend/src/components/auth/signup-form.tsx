@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 import { API_BASE_URL } from "@/lib/api"
+import {
+  getPasswordValidationError,
+  PASSWORD_REQUIREMENTS,
+} from "@/lib/password-validation"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -23,7 +27,6 @@ import { Input } from "@/components/ui/input"
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter()
-  const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -32,6 +35,12 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    const validationError = getPasswordValidationError(password)
+    if (validationError) {
+      setError(validationError)
+      return
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.")
@@ -48,7 +57,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username,
           email,
           password,
         }),
@@ -56,9 +64,15 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
       if (!response.ok) {
         const errorData = (await response.json().catch(() => null)) as {
-          detail?: string
+          detail?: string | { msg?: string }[]
         } | null
-        throw new Error(errorData?.detail ?? "Unable to create account.")
+        const detail = errorData?.detail
+        if (Array.isArray(detail) && detail[0]?.msg) {
+          throw new Error(detail[0].msg)
+        }
+        throw new Error(
+          typeof detail === "string" ? detail : "Unable to create account.",
+        )
       }
 
       router.push("/login")
@@ -85,17 +99,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="username">Username</FieldLabel>
-              <Input
-                id="username"
-                type="text"
-                placeholder="John-Doe123"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                required
-              />
-            </Field>
-            <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
                 id="email"
@@ -121,7 +124,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 minLength={8}
               />
               <FieldDescription>
-                Must be at least 8 characters long.
+                {PASSWORD_REQUIREMENTS.join(" • ")}
               </FieldDescription>
             </Field>
             <Field>
