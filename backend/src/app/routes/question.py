@@ -5,13 +5,16 @@ from app.core.authentication import require_admin
 from app.core.database import get_db
 from app.models.user import User
 from app.schemas.question import (
+    GeneratedQuestionDraft,
     QuestionCreate,
     QuestionCreateWithOptions,
+    QuestionGenerationRequest,
     QuestionOut,
     QuestionWithOptions,
     QuestionWithResults,
     QuestionUpdate,
 )
+from app.services.question_generation import question_generation_service
 from app.services.question import question_service
 
 from app.exceptions.notfound_excs import question_not_found_exception
@@ -59,6 +62,14 @@ def create_question_with_options(
     admin_user: User = Depends(require_admin),
 ):
     return question_service.create_with_options(db, question)
+
+
+@api_router.post("/generate-draft", response_model=GeneratedQuestionDraft)
+def generate_question_draft(
+    request: QuestionGenerationRequest,
+    admin_user: User = Depends(require_admin),
+):
+    return question_generation_service.generate_question_draft(request.topic_hint)
 
 
 @api_router.put("/{question_id}", response_model=QuestionOut)

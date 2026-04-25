@@ -30,6 +30,11 @@ class Settings(BaseSettings):
         description="Access token expiration time in minutes",
     )
 
+    cookie_secure: bool = Field(
+        default=False,
+        description="Whether auth cookies should require HTTPS",
+    )
+
     database_url: str = Field(
         default=f"sqlite:///{DB_PATH}",
         description="Database connection URL",

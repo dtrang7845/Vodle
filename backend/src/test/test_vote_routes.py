@@ -7,14 +7,14 @@ def create_user(client, username):
         json={
             "username": username,
             "email": f"{username}@example.com",
-            "password": "secret123",
+            "password": "Secret123!",
         },
     )
     assert response.status_code == 201, response.json()
     return response.json()
 
 
-def login_user(client, email, password="secret123"):
+def login_user(client, email, password="Secret123!"):
     response = client.post(
         "/api/v1/user/login",
         data={

@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 import jwt
 from jwt.exceptions import DecodeError
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from sqlmodel import Session
@@ -16,7 +16,7 @@ ALGORITHM = settings.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 password_hash = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/user/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/user/login", auto_error=False)
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
@@ -87,7 +87,8 @@ def verify_token(token: str) -> dict | None:
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    request: Request,
+    token: str | None = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> User:
     """
@@ -99,7 +100,16 @@ def get_current_user(
     Returns:
         The user object if token is valid, None otherwise
     """
-    payload = verify_token(token)
+    cookie_token = request.cookies.get("vodle_access_token")
+    token_value = token or cookie_token
+    if token_value is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    payload = verify_token(token_value)
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

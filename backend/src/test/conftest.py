@@ -54,4 +54,6 @@ def admin_token_fixture(client: TestClient, session: Session) -> str:
         "/api/v1/user/login",
         data={"username": "admin@test.com", "password": "admin123"},
     )
-    return response.json()["access_token"]
+    token = response.json()["access_token"]
+    client.cookies.clear()
+    return token

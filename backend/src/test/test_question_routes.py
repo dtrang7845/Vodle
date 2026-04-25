@@ -1,5 +1,7 @@
 from datetime import date
 
+from app.schemas.question import GeneratedQuestionDraft, QuestionOptionCreate
+
 
 def create_question(
     client,
@@ -129,4 +131,33 @@ def test_create_question_with_options(client, admin_token):
     assert response.status_code == 201, response.json()
     data = response.json()
     assert data["question_text"] == "Tea or coffee?"
+    assert len(data["options"]) == 2
+
+
+def test_generate_question_draft(client, admin_token, monkeypatch):
+    from app.services.question_generation import question_generation_service
+
+    monkeypatch.setattr(
+        question_generation_service,
+        "generate_question_draft",
+        lambda topic_hint=None: GeneratedQuestionDraft(
+            title="Daily Debate",
+            description="A generated draft",
+            question_text="Which season is best?",
+            options=[
+                QuestionOptionCreate(option_text="Spring"),
+                QuestionOptionCreate(option_text="Autumn"),
+            ],
+        ),
+    )
+
+    response = client.post(
+        "/api/v1/question/generate-draft",
+        json={"topic_hint": "weather"},
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert response.status_code == 200, response.json()
+    data = response.json()
+    assert data["title"] == "Daily Debate"
     assert len(data["options"]) == 2

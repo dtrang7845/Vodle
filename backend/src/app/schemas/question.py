@@ -23,6 +23,17 @@ class QuestionCreateWithOptions(QuestionBase):
     options: list[QuestionOptionCreate]
 
 
+class QuestionGenerationRequest(BaseModel):
+    topic_hint: str | None = None
+
+
+class GeneratedQuestionDraft(BaseModel):
+    title: str
+    description: str | None = None
+    question_text: str
+    options: list[QuestionOptionCreate]
+
+
 class QuestionUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
