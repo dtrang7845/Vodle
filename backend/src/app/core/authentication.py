@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt
-from jwt.exceptions import DecodeError
+from jwt.exceptions import InvalidTokenError
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
@@ -82,7 +82,7 @@ def verify_token(token: str) -> dict | None:
             algorithms=[ALGORITHM],
         )
         return payload
-    except DecodeError:
+    except InvalidTokenError:
         return None
 
 
