@@ -11,7 +11,3 @@ email_already_exists_exception = HTTPException(
     detail="Email already registered",
 )
 
-username_already_exists_exception = HTTPException(
-    status_code=status.HTTP_409_CONFLICT,
-    detail="Username already taken",
-)

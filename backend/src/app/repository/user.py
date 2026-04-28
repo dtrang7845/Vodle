@@ -19,11 +19,6 @@ class UserRepository:
         return db.exec(statement).first()
 
     @staticmethod
-    def get_by_username(db: "Session", username: str) -> User | None:
-        statement = select(User).where(User.username == username)
-        return db.exec(statement).first()
-
-    @staticmethod
     def get_by_id(db: "Session", user_id: int) -> User | None:
         statement = select(User).where(User.id == user_id)
         return db.exec(statement).first()

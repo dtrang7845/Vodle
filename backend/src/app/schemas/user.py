@@ -10,7 +10,6 @@ from app.models.user import UserRole
 # Base
 # -----------------------------
 class UserBase(BaseModel):
-    username: str
     email: EmailStr
 
 

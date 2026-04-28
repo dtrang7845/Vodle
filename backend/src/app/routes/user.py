@@ -60,7 +60,7 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
-    db_user = user_service.authenticate(db, form_data.username, form_data.password)
+    db_user = user_service.authenticate(db, form_data.username,form_data.password)
 
     if not db_user:
         raise invalid_credentials_exception

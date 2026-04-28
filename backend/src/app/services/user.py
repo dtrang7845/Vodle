@@ -10,7 +10,6 @@ from app.schemas.user import UserCreate, UserUpdate
 from sqlmodel import select
 
 from app.exceptions.login_excs import (
-    username_already_exists_exception,
     email_already_exists_exception,
 )
 
@@ -32,28 +31,18 @@ class UserService:
     def get_by_email(self, db: "Session", email: str) -> User | None:
         return self.repository.get_by_email(db, email)
 
-    def get_by_username(self, db: "Session", username: str) -> User | None:
-        return self.repository.get_by_username(db, username)
-
     def get_by_id(self, db: "Session", user_id: int) -> User | None:
         return self.repository.get_by_id(db, user_id)
 
     def is_email_exists(self, db: "Session", email: str) -> bool:
         return self.repository.get_by_email(db, email) is not None
 
-    def is_username_exists(self, db: "Session", username: str) -> bool:
-        return self.repository.get_by_username(db, username) is not None
-
     def create(self, db: "Session", user: UserCreate) -> User:
         existing_email = self.is_email_exists(db, user.email)
         if existing_email:
             raise email_already_exists_exception
 
-        if self.is_username_exists(db, user.username):
-            raise username_already_exists_exception
-
         db_user = User(
-            username=user.username,
             email=user.email,
             password_hash=get_password_hash(user.password),
             role=UserRole.USER,
