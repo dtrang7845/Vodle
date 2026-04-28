@@ -28,7 +28,6 @@ import { Input } from "@/components/ui/input"
 
 type CurrentUser = {
   id: number
-  username: string
   email: string
   role?: "user" | "admin"
   created_at: string
@@ -230,8 +229,6 @@ export default function AccountPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Username</p>
-            <p className="font-medium">{user.username}</p>
           </div>
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Email</p>

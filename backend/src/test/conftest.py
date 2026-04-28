@@ -42,7 +42,6 @@ def admin_token_fixture(client: TestClient, session: Session) -> str:
     from app.core.authentication import get_password_hash
 
     admin = User(
-        username="admin",
         email="admin@test.com",
         password_hash=get_password_hash("admin123"),
         role=UserRole.ADMIN,
@@ -52,7 +51,7 @@ def admin_token_fixture(client: TestClient, session: Session) -> str:
 
     response = client.post(
         "/api/v1/user/login",
-        data={"username": "admin@test.com", "password": "admin123"},
+        data={"email": "admin@test.com", "password": "admin123"},
     )
     token = response.json()["access_token"]
     client.cookies.clear()

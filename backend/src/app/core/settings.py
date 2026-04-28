@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     )
 
     database_url: str = Field(
-        default=f"sqlite:///{DB_PATH}",
+        default=f"sqlite:///{DB_PATH.as_posix()}",
         description="Database connection URL",
     )
 

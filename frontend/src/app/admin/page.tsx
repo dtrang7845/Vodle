@@ -23,7 +23,6 @@ import { Input } from "@/components/ui/input"
 
 type CurrentUser = {
   id: number
-  username: string
   email: string
   role?: "user" | "admin"
 }
