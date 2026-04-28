@@ -1,10 +1,11 @@
 services:
-  # backend service (FastAPI + uv)
   backend:
-    build: ./backend
-    container_name: backend
+    build:
+      context: ./backend
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend/vodle.db:/app/vodle.db
     environment:
       - PYTHONUNBUFFERED=1
     # Optional: enable live reload for dev
