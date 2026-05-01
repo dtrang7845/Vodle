@@ -9,6 +9,7 @@ import { BackHomeLink } from "@/components/custom/back-home-link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Globe from "@/components/ui/globe";
+import { formatDateOnly } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 
 type TodayQuestion = {
@@ -144,7 +145,7 @@ export default function ResultsPage() {
             Today&apos;s Question
           </p>
           <p className="text-sm text-muted-foreground">
-            {new Date(results.publish_date).toLocaleDateString("en-US", {
+            {formatDateOnly(results.publish_date, {
               month: "long",
               day: "numeric",
               year: "numeric",

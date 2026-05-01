@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "@/lib/api";
+import { formatDateOnly } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -174,7 +175,7 @@ export default function VotePage() {
   };
 
   const formattedDate = question
-    ? new Date(question.publish_date).toLocaleDateString("en-US", {
+    ? formatDateOnly(question.publish_date, {
         weekday: "long",
         month: "long",
         day: "numeric",
