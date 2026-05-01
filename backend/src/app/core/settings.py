@@ -1,9 +1,5 @@
-from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
-DB_PATH = BASE_DIR / "data" / "vodle.db"
 
 
 class Settings(BaseSettings):
@@ -35,28 +31,8 @@ class Settings(BaseSettings):
         description="Whether auth cookies should require HTTPS",
     )
 
-    app_timezone: str = Field(
-        default="America/Los_Angeles",
-        description="Timezone used to choose the active daily question",
-    )
-
-    auto_seed_daily_questions: bool = Field(
-        default=True,
-        description="Whether startup should schedule missing daily questions",
-    )
-
-    scheduled_question_days: int = Field(
-        default=30,
-        description="How many days of daily questions to keep scheduled",
-    )
-
-    archived_question_days: int = Field(
-        default=30,
-        description="How many past days of daily questions to keep scheduled",
-    )
-
     database_url: str = Field(
-        default=f"sqlite:///{DB_PATH.as_posix()}",
+        default="postgresql://vodle:vodle@localhost:5432/vodle",
         description="Database connection URL",
     )
 

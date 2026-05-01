@@ -1,26 +1,36 @@
 services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: vodle
+      POSTGRES_PASSWORD: vodle
+      POSTGRES_DB: vodle
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vodle -d vodle"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
-    build:
-      context: ./backend
+    build: ./backend
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
-      - backend-db:/app/data
       - backend-venv:/app/.venv
     environment:
       - PYTHONUNBUFFERED=1
       - UV_LINK_MODE=copy
       - UV_PYTHON=/usr/local/bin/python3
-      - DATABASE_URL=sqlite:////app/data/vodle.db
-    # Optional: enable live reload for dev
-    # command: uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+      - DATABASE_URL=postgresql://vodle:vodle@postgres:5432/vodle
 
-    # Uncomment for dev (live code updates)
-    # volumes:
-    #   - ./backend:/app
-
-  # frontend service (Bun)
   frontend:
     build: ./frontend
     container_name: frontend
@@ -31,10 +41,5 @@ services:
     environment:
       - NODE_ENV=development
 
-    # Uncomment for dev (live reload)
-    # volumes:
-    #   - ./frontend:/app
-
 volumes:
-  backend-db:
   backend-venv:
