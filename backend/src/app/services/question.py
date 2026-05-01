@@ -1,8 +1,10 @@
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from fastapi import HTTPException, status
 from sqlmodel import select, func
 
+from app.core.dates import current_publish_date
 from app.models.question import Question
 from app.models.option import Option
 from app.models.vote import Vote
@@ -13,6 +15,7 @@ from app.schemas.question import (
     QuestionWithResults,
     QuestionUpdate,
 )
+from app.services.question_generation import question_generation_service
 
 if TYPE_CHECKING:
     from sqlmodel import Session
@@ -36,6 +39,43 @@ class QuestionService:
                 detail="No question found for today",
             )
         return question
+
+    def ensure_scheduled_questions(
+        self, db: "Session", future_days: int, past_days: int = 0
+    ) -> int:
+        future_days = max(future_days, 1)
+        past_days = max(past_days, 0)
+        today = current_publish_date()
+        created_count = 0
+        used_question_texts = {
+            question.question_text for question in db.exec(select(Question)).all()
+        }
+
+        for offset in range(-past_days, future_days):
+            publish_date = today + timedelta(days=offset)
+            existing_question = db.exec(
+                select(Question).where(Question.publish_date == publish_date)
+            ).first()
+            if existing_question is not None:
+                continue
+
+            draft = question_generation_service.generate_question_draft(
+                used_question_texts=used_question_texts
+            )
+            created_question = self.create_with_options(
+                db,
+                QuestionCreateWithOptions(
+                    title=draft.title,
+                    description=draft.description,
+                    question_text=draft.question_text,
+                    publish_date=publish_date,
+                    options=draft.options,
+                ),
+            )
+            used_question_texts.add(created_question.question_text)
+            created_count += 1
+
+        return created_count
 
     def get_with_results(
         self,
@@ -61,6 +101,15 @@ class QuestionService:
                 .group_by(Vote.option_id)
             ).all()
         }
+        vote_locations = db.exec(
+            select(Vote.latitude, Vote.longitude, Vote.country, func.count(Vote.id))
+            .where(
+                Vote.question_id == question_id,
+                Vote.latitude.is_not(None),
+                Vote.longitude.is_not(None),
+            )
+            .group_by(Vote.latitude, Vote.longitude, Vote.country)
+        ).all()
 
         return QuestionWithResults(
             id=question.id,
@@ -76,6 +125,15 @@ class QuestionService:
                     "votes": vote_counts.get(option.id, 0),
                 }
                 for option in options
+            ],
+            vote_locations=[
+                {
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "country": country,
+                    "votes": votes,
+                }
+                for latitude, longitude, country, votes in vote_locations
             ],
         )
 

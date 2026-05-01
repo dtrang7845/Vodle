@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,6 +33,7 @@ type ExistingVote = {
 
 export default function VotePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [question, setQuestion] = useState<TodayQuestion | null>(null);
   const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
   const [existingVote, setExistingVote] = useState<ExistingVote | null>(null);
@@ -43,10 +44,14 @@ export default function VotePage() {
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchTodayQuestion = async () => {
+    const fetchQuestion = async () => {
       try {
         setErrorMessage(null);
-        const res = await fetch(`${API_BASE_URL}/api/v1/question/today`);
+        const questionId = searchParams.get("questionId");
+        const url = questionId
+          ? `${API_BASE_URL}/api/v1/question/${questionId}`
+          : `${API_BASE_URL}/api/v1/question/today`;
+        const res = await fetch(url);
         if (res.status === 404) {
           setQuestion(null);
           return;
@@ -64,8 +69,8 @@ export default function VotePage() {
       }
     };
 
-    fetchTodayQuestion();
-  }, []);
+    fetchQuestion();
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchExistingVote = async () => {
@@ -118,6 +123,7 @@ export default function VotePage() {
     setSubmitSuccess(null);
 
     try {
+      const location = await getVoteLocation();
       const response = await fetch(`${API_BASE_URL}/api/v1/vote/`, {
         method: "POST",
         credentials: "include",
@@ -127,6 +133,7 @@ export default function VotePage() {
         body: JSON.stringify({
           question_id: question.id,
           option_id: selectedOptionId,
+          ...location,
         }),
       });
 
@@ -292,4 +299,25 @@ export default function VotePage() {
       </section>
     </main>
   );
+}
+
+function getVoteLocation(): Promise<{
+  latitude?: number;
+  longitude?: number;
+} | null> {
+  if (!navigator.geolocation) {
+    return Promise.resolve(null);
+  }
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        }),
+      () => resolve(null),
+      { enableHighAccuracy: false, maximumAge: 600000, timeout: 3000 },
+    );
+  });
 }

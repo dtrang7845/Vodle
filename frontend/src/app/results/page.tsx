@@ -8,6 +8,7 @@ import { API_BASE_URL } from "@/lib/api";
 import { BackHomeLink } from "@/components/custom/back-home-link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Globe from "@/components/ui/globe";
 import { cn } from "@/lib/utils";
 
 type TodayQuestion = {
@@ -28,6 +29,12 @@ type QuestionResults = {
   publish_date: string;
   created_at: string;
   results: ResultItem[];
+  vote_locations: {
+    latitude: number;
+    longitude: number;
+    country: string | null;
+    votes: number;
+  }[];
 };
 
 type ExistingVote = {
@@ -187,6 +194,28 @@ export default function ResultsPage() {
                 </div>
               );
             })}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Vote Map</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Globe
+              width={520}
+              height={320}
+              points={results.vote_locations}
+              className="mx-auto border"
+            />
+            <p className="text-sm text-muted-foreground">
+              {results.vote_locations.length === 0
+                ? "No location data has been shared for this question yet."
+                : `${results.vote_locations.reduce(
+                    (sum, location) => sum + location.votes,
+                    0,
+                  )} location-aware votes shown.`}
+            </p>
           </CardContent>
         </Card>
 

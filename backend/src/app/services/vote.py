@@ -19,6 +19,7 @@ from app.exceptions.other_excs import (
 )
 
 if TYPE_CHECKING:
+    from fastapi import Request
     from sqlmodel import Session
 
 
@@ -50,7 +51,38 @@ class VoteService:
 
         return self.repository.get_existing_vote(db, current_user_id, question_id)
 
-    def create(self, db: "Session", vote: VoteCreate, user_id: int) -> Vote:
+    @staticmethod
+    def _location_from_request(vote: VoteCreate, request: "Request | None") -> dict:
+        latitude = vote.latitude
+        longitude = vote.longitude
+        country = vote.country
+
+        if request is not None:
+            latitude = latitude or _float_header(request, "cf-iplatitude")
+            longitude = longitude or _float_header(request, "cf-iplongitude")
+            country = country or request.headers.get("cf-ipcountry")
+            latitude = latitude or _float_header(request, "x-vercel-ip-latitude")
+            longitude = longitude or _float_header(request, "x-vercel-ip-longitude")
+            country = country or request.headers.get("x-vercel-ip-country")
+
+        if latitude is not None and not -90 <= latitude <= 90:
+            latitude = None
+        if longitude is not None and not -180 <= longitude <= 180:
+            longitude = None
+
+        return {
+            "latitude": latitude,
+            "longitude": longitude,
+            "country": country[:80] if country else None,
+        }
+
+    def create(
+        self,
+        db: "Session",
+        vote: VoteCreate,
+        user_id: int,
+        request: "Request | None" = None,
+    ) -> Vote:
         db_question = self.question_repository.get_by_id(db, vote.question_id)
         if db_question is None:
             raise question_not_found_exception
@@ -70,6 +102,7 @@ class VoteService:
             user_id=user_id,
             question_id=vote.question_id,
             option_id=vote.option_id,
+            **self._location_from_request(vote, request),
         )
         return self.repository.create(db, db_vote)
 
@@ -102,3 +135,13 @@ class VoteService:
 
 
 vote_service = VoteService()
+
+
+def _float_header(request: "Request", name: str) -> float | None:
+    value = request.headers.get(name)
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None

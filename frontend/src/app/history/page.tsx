@@ -296,10 +296,14 @@ export default function HistoryPage() {
                     <p>{question.totalVotes.toLocaleString()} votes</p>
                   </div>
                   <Link
-                    href={`/results?questionId=${question.id}`}
+                    href={
+                      question.yourAnswer
+                        ? `/results?questionId=${question.id}`
+                        : `/vote?questionId=${question.id}`
+                    }
                     className={cn(buttonVariants({ variant: "outline" }))}
                   >
-                    Open Result
+                    {question.yourAnswer ? "Open Result" : "Answer Question"}
                   </Link>
                 </CardContent>
               </Card>

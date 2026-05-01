@@ -60,6 +60,13 @@ class QuestionResultItem(BaseModel):
     votes: int
 
 
+class VoteLocation(BaseModel):
+    latitude: float
+    longitude: float
+    country: str | None = None
+    votes: int
+
+
 class QuestionWithResults(BaseModel):
     id: int
     title: str
@@ -68,5 +75,6 @@ class QuestionWithResults(BaseModel):
     publish_date: date
     created_at: datetime
     results: list[QuestionResultItem]
+    vote_locations: list[VoteLocation] = []
 
     model_config = ConfigDict(from_attributes=True)
