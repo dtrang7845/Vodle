@@ -1,0 +1,31 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/vodle.db:/app/vodle.db
+    environment:
+      - PYTHONUNBUFFERED=1
+    # Optional: enable live reload for dev
+    # command: uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+    # Uncomment for dev (live code updates)
+    # volumes:
+    #   - ./backend:/app
+
+  # frontend service (Bun)
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=development
+
+    # Uncomment for dev (live reload)
+    # volumes:
+    #   - ./frontend:/app
