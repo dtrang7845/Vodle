@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 
 import { API_BASE_URL } from "@/lib/api";
+import { formatDateOnly, parseDateOnly } from "@/lib/dates";
 import { BackHomeLink } from "@/components/custom/back-home-link";
 import { buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -55,8 +56,8 @@ export default function HistoryPage() {
         const data = (await response.json()) as Question[];
         const sortedQuestions = data.sort(
           (left, right) =>
-            new Date(right.publish_date).getTime() -
-            new Date(left.publish_date).getTime(),
+            parseDateOnly(right.publish_date).getTime() -
+            parseDateOnly(left.publish_date).getTime(),
         );
 
         const historyResults = await Promise.all(
@@ -118,7 +119,7 @@ export default function HistoryPage() {
       return undefined;
     }
 
-    return parseISO(historyItems[historyItems.length - 1].publish_date);
+    return parseDateOnly(historyItems[historyItems.length - 1].publish_date);
   }, [historyItems]);
 
   const todayKey = format(new Date(), "yyyy-MM-dd");
@@ -168,7 +169,7 @@ export default function HistoryPage() {
               selected={selectedDate}
               onSelect={setSelectedDate}
               disabled={{
-                after: parseISO(todayKey),
+                after: parseDateOnly(todayKey),
                 before: firstQuestionDate,
               }}
             />
@@ -194,7 +195,7 @@ export default function HistoryPage() {
                 <>
                   <div className="space-y-2">
                     <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                      {new Date(todayResult.publish_date).toLocaleDateString("en-US", {
+                      {formatDateOnly(todayResult.publish_date, {
                         month: "long",
                         day: "numeric",
                         year: "numeric",
@@ -267,7 +268,7 @@ export default function HistoryPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground">
-                    {new Date(question.publish_date).toLocaleDateString("en-US", {
+                    {formatDateOnly(question.publish_date, {
                       weekday: "long",
                       month: "long",
                       day: "numeric",
