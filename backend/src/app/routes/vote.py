@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlmodel import Session
 
 from app.core.database import get_db
@@ -44,10 +44,11 @@ def get_vote(vote_id: int, db: Session = Depends(get_db)):
 @api_router.post("/", response_model=VoteOut, status_code=201)
 def create_vote(
     vote: VoteCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return vote_service.create(db, vote, current_user.id)
+    return vote_service.create(db, vote, current_user.id, request)
 
 
 @api_router.put("/{vote_id}", response_model=VoteOut)

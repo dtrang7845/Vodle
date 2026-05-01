@@ -1,18 +1,22 @@
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import timedelta
 
 from sqlmodel import Session, select
 
+from app.core.dates import current_publish_date
 from app.core.database import create_db_and_tables, engine
+from app.models import option  # noqa: F401
 from app.models.question import Question
+from app.models import user  # noqa: F401
+from app.models import vote  # noqa: F401
 from app.schemas.question import QuestionCreateWithOptions
 from app.services.question import question_service
 from app.services.question_generation import question_generation_service
 
 
-def seed_questions(days: int = 5) -> None:
-    today = date.today()
+def seed_questions(days: int = 5, past_days: int = 0) -> None:
+    today = current_publish_date()
     create_db_and_tables()
 
     with Session(engine) as session:
@@ -20,7 +24,7 @@ def seed_questions(days: int = 5) -> None:
             question.question_text for question in session.exec(select(Question)).all()
         }
 
-        for offset in range(days):
+        for offset in range(-max(past_days, 0), days):
             publish_date = today + timedelta(days=offset)
 
             existing_question = session.exec(
@@ -48,4 +52,4 @@ def seed_questions(days: int = 5) -> None:
 
 
 if __name__ == "__main__":
-    seed_questions()
+    seed_questions(past_days=30)

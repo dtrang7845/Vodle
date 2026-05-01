@@ -5,6 +5,8 @@ FROM ghcr.io/astral-sh/uv:python3.12-trixie-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app/src
+ENV UV_LINK_MODE=copy
+ENV UV_PYTHON=/usr/local/bin/python3
 
 # Set working directory
 WORKDIR /app

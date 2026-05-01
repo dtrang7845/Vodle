@@ -32,7 +32,7 @@ def get_today_question(db: Session = Depends(get_db)):
     return question_service.get_today(db)
 
 
-@api_router.get("/{question_id}", response_model=QuestionOut)
+@api_router.get("/{question_id}", response_model=QuestionWithOptions)
 def get_question(question_id: int, db: Session = Depends(get_db)):
     question = question_service.get_by_id(db, question_id)
 

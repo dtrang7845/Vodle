@@ -1,7 +1,7 @@
-from datetime import date
 from typing import TYPE_CHECKING
 from sqlmodel import select
 
+from app.core.dates import current_publish_date
 from app.models.question import Question
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ class QuestionRepository:
 
     @staticmethod
     def get_today(db: "Session") -> Question | None:
-        today = date.today()
+        today = current_publish_date()
         statement = select(Question).where(Question.publish_date == today)
         return db.exec(statement).first()
 
