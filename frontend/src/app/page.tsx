@@ -174,13 +174,6 @@ export default function Home() {
             >
               Sign Up
             </Link>
-
-            <Link
-              href="/vote"
-              className="text-sm text-muted-foreground underline hover:text-black"
-            >
-              Continue without account
-            </Link>
           </div>
         </div>
       </section>
