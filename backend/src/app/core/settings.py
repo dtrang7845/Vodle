@@ -35,6 +35,16 @@ class Settings(BaseSettings):
         description="Whether auth cookies should require HTTPS",
     )
 
+    cookie_samesite: str = Field(
+        default="lax",
+        description="SameSite policy for auth cookies",
+    )
+
+    cors_allowed_origins: str = Field(
+        default="http://localhost:3000,http://127.0.0.1:3000,https://vodle.vercel.app",
+        description="Comma-separated list of frontend origins allowed by CORS",
+    )
+
     app_timezone: str = Field(
         default="America/Los_Angeles",
         description="Timezone used to choose the active daily question",
@@ -59,6 +69,14 @@ class Settings(BaseSettings):
         default=f"sqlite:///{DB_PATH.as_posix()}",
         description="Database connection URL",
     )
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [
+            origin.strip()
+            for origin in self.cors_allowed_origins.split(",")
+            if origin.strip()
+        ]
 
 
 settings = Settings()
