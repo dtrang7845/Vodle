@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { API_BASE_URL } from "@/lib/api";
@@ -42,7 +42,7 @@ type ExistingVote = {
   option_id: number;
 };
 
-export default function ResultsPage() {
+function ResultsPageContent() {
   const searchParams = useSearchParams();
   const [results, setResults] = useState<QuestionResults | null>(null);
   const [userVoteOptionId, setUserVoteOptionId] = useState<number | null>(null);
@@ -246,5 +246,19 @@ export default function ResultsPage() {
         </Card>
       </div>
     </main>
+  );
+}
+
+export default function ResultsPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center px-6">
+          <p className="text-sm text-muted-foreground">Loading results...</p>
+        </main>
+      }
+    >
+      <ResultsPageContent />
+    </Suspense>
   );
 }

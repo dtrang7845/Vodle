@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { formatDateOnly } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +32,7 @@ type ExistingVote = {
   created_at: string;
 };
 
-export default function VotePage() {
+function VotePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [question, setQuestion] = useState<TodayQuestion | null>(null);
@@ -299,6 +299,22 @@ export default function VotePage() {
         </Card>
       </section>
     </main>
+  );
+}
+
+export default function VotePage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center px-6">
+          <p className="text-sm text-muted-foreground">
+            Loading today&apos;s question...
+          </p>
+        </main>
+      }
+    >
+      <VotePageContent />
+    </Suspense>
   );
 }
 
