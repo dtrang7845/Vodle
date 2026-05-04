@@ -2,6 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { feature } from "topojson-client";
+import type { Topology } from "topojson-specification";
+import worldLand from "world-atlas/land-50m.json";
 
 export type GlobePoint = {
   latitude: number;
@@ -17,152 +20,11 @@ interface RotatingEarthProps {
   points?: GlobePoint[];
 }
 
-const land = {
-  type: "FeatureCollection",
-  features: [
-    {
-      type: "Feature",
-      properties: { name: "North America" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [-168, 72],
-            [-132, 72],
-            [-95, 62],
-            [-60, 54],
-            [-54, 42],
-            [-76, 25],
-            [-82, 9],
-            [-103, 16],
-            [-116, 28],
-            [-124, 42],
-            [-150, 59],
-            [-168, 72],
-          ],
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { name: "Central America" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [-103, 22],
-            [-82, 20],
-            [-77, 9],
-            [-83, 7],
-            [-91, 14],
-            [-103, 22],
-          ],
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { name: "South America" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [-82, 12],
-            [-60, 10],
-            [-36, -6],
-            [-42, -24],
-            [-54, -38],
-            [-68, -55],
-            [-76, -35],
-            [-72, -12],
-            [-82, 12],
-          ],
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { name: "Europe and Asia" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [-11, 36],
-            [3, 52],
-            [30, 66],
-            [72, 72],
-            [125, 62],
-            [154, 48],
-            [142, 24],
-            [111, 20],
-            [92, 7],
-            [74, 20],
-            [54, 16],
-            [42, 32],
-            [24, 35],
-            [8, 42],
-            [-11, 36],
-          ],
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { name: "Africa" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [-18, 35],
-            [10, 36],
-            [34, 30],
-            [48, 10],
-            [42, -18],
-            [28, -35],
-            [12, -34],
-            [-8, -12],
-            [-17, 8],
-            [-18, 35],
-          ],
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { name: "Australia" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [112, -11],
-            [154, -12],
-            [153, -34],
-            [134, -44],
-            [113, -34],
-            [112, -11],
-          ],
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { name: "Greenland" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [-52, 60],
-            [-24, 66],
-            [-18, 80],
-            [-44, 84],
-            [-62, 74],
-            [-52, 60],
-          ],
-        ],
-      },
-    },
-  ],
-} satisfies GeoJSON.FeatureCollection;
+const worldTopology = worldLand as unknown as Topology;
+const land = feature(
+  worldTopology,
+  worldTopology.objects.land,
+) as GeoJSON.FeatureCollection;
 
 export default function RotatingEarth({
   width = 800,
