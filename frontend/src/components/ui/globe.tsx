@@ -17,6 +17,153 @@ interface RotatingEarthProps {
   points?: GlobePoint[];
 }
 
+const land = {
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      properties: { name: "North America" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-168, 72],
+            [-132, 72],
+            [-95, 62],
+            [-60, 54],
+            [-54, 42],
+            [-76, 25],
+            [-82, 9],
+            [-103, 16],
+            [-116, 28],
+            [-124, 42],
+            [-150, 59],
+            [-168, 72],
+          ],
+        ],
+      },
+    },
+    {
+      type: "Feature",
+      properties: { name: "Central America" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-103, 22],
+            [-82, 20],
+            [-77, 9],
+            [-83, 7],
+            [-91, 14],
+            [-103, 22],
+          ],
+        ],
+      },
+    },
+    {
+      type: "Feature",
+      properties: { name: "South America" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-82, 12],
+            [-60, 10],
+            [-36, -6],
+            [-42, -24],
+            [-54, -38],
+            [-68, -55],
+            [-76, -35],
+            [-72, -12],
+            [-82, 12],
+          ],
+        ],
+      },
+    },
+    {
+      type: "Feature",
+      properties: { name: "Europe and Asia" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-11, 36],
+            [3, 52],
+            [30, 66],
+            [72, 72],
+            [125, 62],
+            [154, 48],
+            [142, 24],
+            [111, 20],
+            [92, 7],
+            [74, 20],
+            [54, 16],
+            [42, 32],
+            [24, 35],
+            [8, 42],
+            [-11, 36],
+          ],
+        ],
+      },
+    },
+    {
+      type: "Feature",
+      properties: { name: "Africa" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-18, 35],
+            [10, 36],
+            [34, 30],
+            [48, 10],
+            [42, -18],
+            [28, -35],
+            [12, -34],
+            [-8, -12],
+            [-17, 8],
+            [-18, 35],
+          ],
+        ],
+      },
+    },
+    {
+      type: "Feature",
+      properties: { name: "Australia" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [112, -11],
+            [154, -12],
+            [153, -34],
+            [134, -44],
+            [113, -34],
+            [112, -11],
+          ],
+        ],
+      },
+    },
+    {
+      type: "Feature",
+      properties: { name: "Greenland" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-52, 60],
+            [-24, 66],
+            [-18, 80],
+            [-44, 84],
+            [-62, 74],
+            [-52, 60],
+          ],
+        ],
+      },
+    },
+  ],
+} satisfies GeoJSON.FeatureCollection;
+
 export default function RotatingEarth({
   width = 800,
   height = 600,
@@ -54,18 +201,72 @@ export default function RotatingEarth({
       context.clearRect(0, 0, width, height);
       projection.rotate(rotation);
 
+      const oceanGradient = context.createRadialGradient(
+        width * 0.38,
+        height * 0.32,
+        radius * 0.15,
+        width / 2,
+        height / 2,
+        radius,
+      );
+      oceanGradient.addColorStop(0, "hsl(204 78% 36%)");
+      oceanGradient.addColorStop(0.7, "hsl(209 68% 22%)");
+      oceanGradient.addColorStop(1, "hsl(215 58% 12%)");
+
       context.beginPath();
       context.arc(width / 2, height / 2, radius, 0, Math.PI * 2);
-      context.fillStyle = "hsl(210 22% 10%)";
+      context.fillStyle = oceanGradient;
       context.fill();
-      context.strokeStyle = "hsl(210 16% 34%)";
+      context.strokeStyle = "hsl(197 80% 78% / 0.35)";
       context.lineWidth = 1;
       context.stroke();
 
+      context.save();
+      context.beginPath();
+      context.arc(width / 2, height / 2, radius, 0, Math.PI * 2);
+      context.clip();
+
+      context.beginPath();
+      path(land);
+      context.fillStyle = "hsl(132 34% 31%)";
+      context.fill();
+      context.strokeStyle = "hsl(92 42% 64% / 0.55)";
+      context.lineWidth = 0.7;
+      context.stroke();
+
+      context.beginPath();
+      path(land);
+      context.shadowColor = "hsl(130 60% 18% / 0.55)";
+      context.shadowBlur = 10;
+      context.fillStyle = "hsl(92 38% 45% / 0.28)";
+      context.fill();
+      context.shadowBlur = 0;
+
       context.beginPath();
       path(graticule);
-      context.strokeStyle = "hsl(210 14% 55% / 0.28)";
-      context.lineWidth = 0.8;
+      context.strokeStyle = "hsl(198 80% 82% / 0.18)";
+      context.lineWidth = 0.7;
+      context.stroke();
+      context.restore();
+
+      const atmosphere = context.createRadialGradient(
+        width / 2,
+        height / 2,
+        radius * 0.72,
+        width / 2,
+        height / 2,
+        radius * 1.08,
+      );
+      atmosphere.addColorStop(0, "hsl(0 0% 100% / 0)");
+      atmosphere.addColorStop(0.78, "hsl(196 90% 80% / 0.08)");
+      atmosphere.addColorStop(1, "hsl(196 90% 75% / 0.32)");
+
+      context.beginPath();
+      context.arc(width / 2, height / 2, radius, 0, Math.PI * 2);
+      context.fillStyle = atmosphere;
+      context.fill();
+      context.strokeStyle = "hsl(198 88% 78% / 0.45)";
+      context.lineWidth = 1.5;
       context.stroke();
 
       points.forEach((point) => {
