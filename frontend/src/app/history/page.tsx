@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 
 import { API_BASE_URL } from "@/lib/api";
+import { authFetch } from "@/lib/auth";
 import { formatDateOnly, parseDateOnly } from "@/lib/dates";
 import { BackHomeLink } from "@/components/custom/back-home-link";
 import { buttonVariants } from "@/components/ui/button";
@@ -64,9 +65,7 @@ export default function HistoryPage() {
           sortedQuestions.map(async (question) => {
             const [resultsResponse, voteResponse] = await Promise.all([
               fetch(`${API_BASE_URL}/api/v1/question/${question.id}/results`),
-              fetch(`${API_BASE_URL}/api/v1/vote/me/question/${question.id}`, {
-                credentials: "include",
-              }),
+              authFetch(`${API_BASE_URL}/api/v1/vote/me/question/${question.id}`),
             ]);
 
             if (!resultsResponse.ok) {

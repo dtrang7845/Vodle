@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { API_BASE_URL } from "@/lib/api";
+import { authFetch } from "@/lib/auth";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -29,12 +30,8 @@ export default function Home() {
     const loadHomeData = async () => {
       try {
         const [meResponse, statsResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/v1/user/me`, {
-            credentials: "include",
-          }),
-          fetch(`${API_BASE_URL}/api/v1/user/me/stats`, {
-            credentials: "include",
-          }),
+          authFetch(`${API_BASE_URL}/api/v1/user/me`),
+          authFetch(`${API_BASE_URL}/api/v1/user/me/stats`),
         ]);
 
         if (meResponse.status === 401 || statsResponse.status === 401) {

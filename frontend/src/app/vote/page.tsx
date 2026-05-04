@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { API_BASE_URL } from "@/lib/api";
+import { authFetch } from "@/lib/auth";
 import { formatDateOnly } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,11 +82,8 @@ function VotePageContent() {
       }
 
       try {
-        const response = await fetch(
+        const response = await authFetch(
           `${API_BASE_URL}/api/v1/vote/me/question/${question.id}`,
-          {
-            credentials: "include",
-          },
         );
 
         if (response.status === 401) {
@@ -125,9 +123,8 @@ function VotePageContent() {
 
     try {
       const location = await getVoteLocation();
-      const response = await fetch(`${API_BASE_URL}/api/v1/vote/`, {
+      const response = await authFetch(`${API_BASE_URL}/api/v1/vote/`, {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

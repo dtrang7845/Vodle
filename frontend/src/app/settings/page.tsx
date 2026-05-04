@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { API_BASE_URL } from "@/lib/api";
+import { authFetch } from "@/lib/auth";
 import { BackHomeLink } from "@/components/custom/back-home-link";
 import { ModeToggleSettings } from "@/components/custom/mode-toggle-settings";
 import { Button } from "@/components/ui/button";
@@ -35,9 +36,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/user/me`, {
-          credentials: "include",
-        });
+        const response = await authFetch(`${API_BASE_URL}/api/v1/user/me`);
 
         if (response.status === 401) {
           router.push("/login");

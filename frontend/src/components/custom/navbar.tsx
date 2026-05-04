@@ -7,7 +7,7 @@ import { Menu, X } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 import { VodleLogo } from "@/components/custom/vodle-logo";
 import { ModeToggle } from "@/components/custom/mode-toggle";
-import { logoutUser } from "@/lib/auth";
+import { authFetch, logoutUser } from "@/lib/auth";
 
 const leftLinks = [
   { href: "/vote", label: "Vote" },
@@ -34,9 +34,7 @@ export function Navbar() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/user/me`, {
-          credentials: "include",
-        });
+        const response = await authFetch(`${API_BASE_URL}/api/v1/user/me`);
         setIsAuthenticated(response.ok);
       } catch {
         setIsAuthenticated(false);
