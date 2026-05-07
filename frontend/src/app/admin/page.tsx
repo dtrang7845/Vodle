@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { API_BASE_URL } from "@/lib/api"
-import { authFetch } from "@/lib/auth"
 import { BackHomeLink } from "@/components/custom/back-home-link"
 import { Button } from "@/components/ui/button"
 import {
@@ -55,7 +54,9 @@ export default function AdminPage() {
   useEffect(() => {
     const verifyAdmin = async () => {
       try {
-        const response = await authFetch(`${API_BASE_URL}/api/v1/user/me`)
+        const response = await fetch(`${API_BASE_URL}/api/v1/user/me`, {
+          credentials: "include",
+        })
 
         if (response.status === 401) {
           router.push("/login")
@@ -103,8 +104,9 @@ export default function AdminPage() {
     setSuccessMessage(null)
 
     try {
-      const response = await authFetch(`${API_BASE_URL}/api/v1/question/generate-draft`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/question/generate-draft`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -157,8 +159,9 @@ export default function AdminPage() {
     setSuccessMessage(null)
 
     try {
-      const response = await authFetch(`${API_BASE_URL}/api/v1/question/with-options`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/question/with-options`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

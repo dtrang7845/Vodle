@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 import { API_BASE_URL } from "@/lib/api"
-import { saveAccessToken } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +29,7 @@ export function LoginForm({
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [stayLoggedIn, setStayLoggedIn] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -42,6 +42,7 @@ export function LoginForm({
       const body = new URLSearchParams()
       body.append("username", email)
       body.append("password", password)
+      body.append("remember_me", String(stayLoggedIn))
 
       const response = await fetch(`${API_BASE_URL}/api/v1/user/login`, {
         method: "POST",
@@ -58,8 +59,6 @@ export function LoginForm({
         } | null
         throw new Error(errorData?.detail ?? "Unable to log in.")
       }
-      const tokenData = (await response.json()) as { access_token: string }
-      saveAccessToken(tokenData.access_token)
       router.push("/vote")
     } catch (submitError) {
       const message =
@@ -107,6 +106,18 @@ export function LoginForm({
                   required
                   minLength={8}
                 />
+              </Field>
+              <Field>
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    id="stay-logged-in"
+                    checked={stayLoggedIn}
+                    onChange={(e) => setStayLoggedIn(e.target.checked)}
+                    className="h-4 w-4 rounded border-input accent-primary"
+                  />
+                  Stay logged in for 30 days
+                </label>
               </Field>
               <Field>
                 <Button type="submit" disabled={loading}>

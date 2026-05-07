@@ -1,9 +1,9 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { API_BASE_URL } from "@/lib/api";
-import { authFetch } from "@/lib/auth";
 import { formatDateOnly } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ type ExistingVote = {
   created_at: string;
 };
 
-function VotePageContent() {
+function VoteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [question, setQuestion] = useState<TodayQuestion | null>(null);
@@ -82,8 +82,11 @@ function VotePageContent() {
       }
 
       try {
-        const response = await authFetch(
+        const response = await fetch(
           `${API_BASE_URL}/api/v1/vote/me/question/${question.id}`,
+          {
+            credentials: "include",
+          },
         );
 
         if (response.status === 401) {
@@ -123,8 +126,9 @@ function VotePageContent() {
 
     try {
       const location = await getVoteLocation();
-      const response = await authFetch(`${API_BASE_URL}/api/v1/vote/`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/vote/`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -253,8 +257,8 @@ function VotePageContent() {
                     disabled={Boolean(existingVote)}
                     className={`w-full rounded-md border px-4 py-3 text-base font-medium transition ${
                       isSelected
-                        ? "bg-black text-white"
-                        : "bg-white text-black hover:bg-muted"
+                        ? "bg-foreground text-background"
+                        : "bg-background text-foreground hover:bg-muted"
                     } ${
                       existingVote ? "cursor-default opacity-80" : ""
                     }`}
@@ -301,16 +305,12 @@ function VotePageContent() {
 
 export default function VotePage() {
   return (
-    <Suspense
-      fallback={
-        <main className="flex min-h-screen items-center justify-center px-6">
-          <p className="text-sm text-muted-foreground">
-            Loading today&apos;s question...
-          </p>
-        </main>
-      }
-    >
-      <VotePageContent />
+    <Suspense fallback={
+      <main className="flex min-h-screen items-center justify-center px-6">
+        <p className="text-sm text-muted-foreground">Loading today&apos;s question...</p>
+      </main>
+    }>
+      <VoteContent />
     </Suspense>
   );
 }

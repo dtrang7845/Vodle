@@ -7,7 +7,7 @@ import { Menu, X } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 import { VodleLogo } from "@/components/custom/vodle-logo";
 import { ModeToggle } from "@/components/custom/mode-toggle";
-import { authFetch, logoutUser } from "@/lib/auth";
+import { logoutUser } from "@/lib/auth";
 
 const leftLinks = [
   { href: "/vote", label: "Vote" },
@@ -34,7 +34,9 @@ export function Navbar() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await authFetch(`${API_BASE_URL}/api/v1/user/me`);
+        const response = await fetch(`${API_BASE_URL}/api/v1/user/me`, {
+          credentials: "include",
+        });
         setIsAuthenticated(response.ok);
       } catch {
         setIsAuthenticated(false);
@@ -61,8 +63,8 @@ export function Navbar() {
         onClick={() => setIsOpen(false)}
         className={`text-sm transition-colors ${
           isActive
-            ? "font-medium text-foreground"
-            : "text-muted-foreground hover:text-foreground"
+            ? "font-medium text-sky-700 dark:text-indigo-200"
+            : "text-sky-700/70 hover:text-sky-700 dark:text-indigo-200/70 dark:hover:text-indigo-200"
         }`}
       >
         {link.label}
@@ -76,7 +78,6 @@ export function Navbar() {
         {/* Desktop Left Links */}
         <div className="hidden items-center gap-6 md:flex">
           {leftLinks.map(renderLink)}
-          <ModeToggle />
         </div>
 
         {/* Mobile Menu Button */}
@@ -85,6 +86,7 @@ export function Navbar() {
             type="button"
             aria-label="Toggle navigation menu"
             onClick={() => setIsOpen((prev) => !prev)}
+            className="text-sky-700 transition-colors hover:text-sky-800 dark:text-indigo-200 dark:hover:text-indigo-100"
           >
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -94,7 +96,7 @@ export function Navbar() {
         <div className="flex justify-center">
           <Link
             href="/"
-            className="transition-opacity hover:opacity-80"
+            className="text-sky-700 transition-opacity hover:opacity-80 dark:text-indigo-200"
             onClick={() => setIsOpen(false)}
           >
             <VodleLogo size="small" />
@@ -108,15 +110,18 @@ export function Navbar() {
             <button
               type="button"
               onClick={handleLogout}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="text-sm text-sky-700/70 transition-colors hover:text-sky-700 dark:text-indigo-200/70 dark:hover:text-indigo-200"
             >
               Logout
             </button>
           ) : null}
+          <ModeToggle />
         </div>
 
-        {/* Mobile spacer so logo stays centered */}
-        <div className="md:hidden" />
+        {/* Mobile: theme toggle top-right */}
+        <div className="flex justify-end md:hidden">
+          <ModeToggle />
+        </div>
       </nav>
 
       {/* Mobile Menu */}
@@ -132,14 +137,11 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="py-3 text-left text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="py-3 text-left text-sm text-sky-700/70 transition-colors hover:text-sky-700 dark:text-indigo-200/70 dark:hover:text-indigo-200"
               >
                 Logout
               </button>
             ) : null}
-            <div className="pt-3">
-              <ModeToggle />
-            </div>
           </div>
         </div>
       )}

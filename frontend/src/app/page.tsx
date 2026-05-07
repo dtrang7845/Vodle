@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { API_BASE_URL } from "@/lib/api";
-import { authFetch } from "@/lib/auth";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -30,8 +29,12 @@ export default function Home() {
     const loadHomeData = async () => {
       try {
         const [meResponse, statsResponse] = await Promise.all([
-          authFetch(`${API_BASE_URL}/api/v1/user/me`),
-          authFetch(`${API_BASE_URL}/api/v1/user/me/stats`),
+          fetch(`${API_BASE_URL}/api/v1/user/me`, {
+            credentials: "include",
+          }),
+          fetch(`${API_BASE_URL}/api/v1/user/me/stats`, {
+            credentials: "include",
+          }),
         ]);
 
         if (meResponse.status === 401 || statsResponse.status === 401) {
@@ -57,16 +60,17 @@ export default function Home() {
     loadHomeData();
   }, []);
 
-  const todayLabel = useMemo(
-    () =>
+  const [todayLabel, setTodayLabel] = useState("");
+  useEffect(() => {
+    setTodayLabel(
       new Date().toLocaleDateString("en-US", {
         weekday: "long",
         month: "long",
         day: "numeric",
         year: "numeric",
       }),
-    [],
-  );
+    );
+  }, []);
 
   if (isAuthenticated && stats) {
     return (
@@ -137,11 +141,11 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-[80vh] items-center justify-center px-6">
+    <main className="relative left-1/2 -my-10 flex min-h-[calc(100vh-141px)] w-screen -translate-x-1/2 items-center justify-center bg-gradient-to-b from-sky-50 via-white to-background px-6 py-10 dark:from-zinc-950 dark:via-background dark:to-indigo-950/30">
       <section className="w-full max-w-md text-center">
         <div className="space-y-8">
           <div className="flex justify-center">
-            <Globe width={100} height={100} className="rounded-lg border" />
+            <Globe width={100} height={100} className="rounded-lg border border-sky-200 shadow-sm dark:border-indigo-400/30" />
           </div>
 
           <div className="space-y-3">
@@ -149,10 +153,10 @@ export default function Home() {
               <VodleLogo size="large" />
             </div>
 
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-600 dark:text-zinc-300">
               Daily opinions. Global perspective.
             </p>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            <p className="text-xs uppercase tracking-[0.18em] text-sky-700 dark:text-indigo-200">
               {todayLabel}
             </p>
           </div>
@@ -160,14 +164,14 @@ export default function Home() {
           <div className="flex flex-col gap-3">
             <Link
               href="/login"
-              className="rounded-md bg-black px-4 py-2 font-medium text-white transition hover:opacity-90"
+              className="rounded-md bg-indigo-700 px-4 py-2 font-medium text-white transition hover:bg-indigo-600 dark:bg-indigo-300 dark:text-zinc-950 dark:hover:bg-indigo-200"
             >
               Log In
             </Link>
 
             <Link
               href="/signup"
-              className="rounded-md border px-4 py-2 font-medium transition hover:bg-muted"
+              className="rounded-md border border-teal-600/40 px-4 py-2 font-medium text-teal-900 transition hover:border-teal-700 hover:bg-teal-50 dark:border-teal-300/50 dark:text-teal-100 dark:hover:border-teal-200 dark:hover:bg-teal-950/50"
             >
               Sign Up
             </Link>
