@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { API_BASE_URL } from "@/lib/api";
+import { authFetch } from "@/lib/auth";
 import { BackHomeLink } from "@/components/custom/back-home-link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,11 +98,8 @@ function ResultsContent() {
         const data = (await resultsResponse.json()) as QuestionResults;
         setResults(data);
 
-        const voteResponse = await fetch(
+        const voteResponse = await authFetch(
           `${API_BASE_URL}/api/v1/vote/me/question/${questionId}`,
-          {
-            credentials: "include",
-          },
         );
 
         if (voteResponse.ok) {

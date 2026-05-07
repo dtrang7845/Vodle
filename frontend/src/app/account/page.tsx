@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { API_BASE_URL } from "@/lib/api"
-import { logoutUser } from "@/lib/auth"
+import { authFetch, logoutUser } from "@/lib/auth"
 import { BackHomeLink } from "@/components/custom/back-home-link"
 import {
   getPasswordValidationError,
@@ -48,9 +48,7 @@ export default function AccountPage() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/user/me`, {
-          credentials: "include",
-        })
+        const response = await authFetch(`${API_BASE_URL}/api/v1/user/me`)
 
         if (response.status === 401) {
           router.push("/login")
@@ -102,9 +100,8 @@ export default function AccountPage() {
     setUpdateSuccess(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/user/${user.id}`, {
+      const response = await authFetch(`${API_BASE_URL}/api/v1/user/${user.id}`, {
         method: "PUT",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -164,9 +161,8 @@ export default function AccountPage() {
     setUpdateSuccess(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/user/${user.id}`, {
+      const response = await authFetch(`${API_BASE_URL}/api/v1/user/${user.id}`, {
         method: "DELETE",
-        credentials: "include",
       })
 
       if (response.status === 401) {
